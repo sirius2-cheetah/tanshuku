@@ -7,7 +7,7 @@
         // URLパラメータからIDを取得
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
-        const GAS_WEBAPP_URL = "YOUR_GAS_WEBAPP_URL"; // ここもGASのデプロイURLに書き換え
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec"; // ここもGASのデプロイURLに書き換え
 
         if (id) {
             // GASへリダイレクト。GAS側で最終的なURLへ飛ばす
