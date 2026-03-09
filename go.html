@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        // URLパラメータからIDを取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        const GAS_WEBAPP_URL = "YOUR_GAS_WEBAPP_URL"; // ここもGASのデプロイURLに書き換え
+
+        if (id) {
+            // GASへリダイレクト。GAS側で最終的なURLへ飛ばす
+            window.location.href = `${GAS_WEBAPP_URL}?id=${id}`;
+        } else {
+            document.write("Invalid Link");
+        }
+    </script>
+</head>
+<body>
+    <p>リダイレクトしています...</p>
+</body>
+</html>
