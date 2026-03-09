@@ -1,23 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>Redirecting...</title>
-    <script>
-        // URLパラメータからIDを取得
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec"; // ここもGASのデプロイURLに書き換え
-
-        if (id) {
-            // GASへリダイレクト。GAS側で最終的なURLへ飛ばす
-            window.location.href = `${GAS_WEBAPP_URL}?id=${id}`;
-        } else {
-            document.write("Invalid Link");
-        }
-    </script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f7fa; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4a90e2; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { text-align: center; }
+    </style>
 </head>
 <body>
-    <p>リダイレクトしています...</p>
+    <div class="container">
+        <div class="loader"></div>
+        <p id="msg">URLを確認中...</p>
+    </div>
+
+    <script>
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec"; // 新しいデプロイURLに書き換え
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        async function doRedirect() {
+            if (!id) {
+                document.getElementById('msg').innerText = "IDが見つかりません。";
+                return;
+            }
+
+            try {
+                // GASにURLを問い合わせる
+                const response = await fetch(`${GAS_WEBAPP_URL}?id=${id}`);
+                const targetUrl = await response.text();
+
+                if (targetUrl && targetUrl.startsWith('http')) {
+                    document.getElementById('msg').innerText = "ジャンプします！";
+                    // 自分のドメイン上でリダイレクトを実行（これが一番確実）
+                    window.location.href = targetUrl;
+                } else {
+                    document.getElementById('msg').innerText = "有効なURLが見つかりませんでした。";
+                }
+            } catch (e) {
+                document.getElementById('msg').innerText = "エラーが発生しました。";
+                console.error(e);
+            }
+        }
+
+        doRedirect();
+    </script>
 </body>
 </html>
