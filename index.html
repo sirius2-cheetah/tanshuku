@@ -10,6 +10,7 @@
             --bg-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-color: #333;
+            --accent-bg: #eef2f7; /* 薄いグレーのアクセント */
         }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -18,7 +19,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* 高さ可変に対応 */
+            min-height: 100vh;
             margin: 0;
         }
         .container {
@@ -52,32 +53,60 @@
             transition: opacity 0.2s;
         }
         button:hover { opacity: 0.9; }
+        
+        /* 💡 結果エリアのスタイルを刷新 */
         #result {
             margin-top: 1.5rem;
-            padding: 1rem;
-            background: #eef2f7;
-            border-radius: 6px;
+            padding: 1.5rem 1rem; /* パディングを広めに */
+            background: var(--accent-bg);
+            border-radius: 8px;
             display: none;
-            word-break: break-all;
+            border: 1px solid #ddd;
         }
-        /* QRコード表示エリアのスタイル */
+        
+        #result p { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666; }
+        
+        /* 💡 URL表示をスタイリッシュに */
+        #shortUrl {
+            display: block;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            
+            /* 【修正ポイント1】改行を抑制し、はみ出た分は「...」にする */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* QRコード表示エリア */
         #qrcode-container {
-            margin-top: 1rem;
+            margin: 1rem 0;
             background: #fff;
-            padding: 10px;
+            padding: 12px;
             display: inline-block;
             border-radius: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         #qrcode-img {
             display: block;
             width: 150px;
             height: 150px;
         }
-        .copy-btn {
+        
+        /* ボタンを2列に並べる */
+        .action-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             margin-top: 1rem;
+        }
+        .copy-btn {
             background: #555;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            padding: 10px;
         }
     </style>
 </head>
@@ -88,14 +117,17 @@
         <button id="generateBtn" onclick="shortenURL()">短縮URLを生成</button>
         
         <div id="result">
-            <p style="margin:0; font-size:0.9rem; color:#666;">生成されたURL:</p>
+            <p>生成されたURL:</p>
             <strong id="shortUrl"></strong>
             
             <div id="qrcode-container">
                 <img id="qrcode-img" src="" alt="QRコード">
             </div>
             
-            <button class="copy-btn" onclick="copyURL()">コピーする</button>
+            <div class="action-btns">
+                <button class="copy-btn" onclick="copyURL()">URLをコピー</button>
+                <button class="copy-btn" style="background:#666;" onclick="downloadQR()">QRを保存</button>
+            </div>
         </div>
     </div>
 
@@ -122,11 +154,13 @@
                     const resultDiv = document.getElementById('result');
                     const shortUrl = `${CUSTOM_DOMAIN}/go.html?id=${data.id}`;
                     
-                    // URL表示
-                    document.getElementById('shortUrl').innerText = shortUrl;
+                    // URLセット
+                    const shortUrlEl = document.getElementById('shortUrl');
+                    shortUrlEl.innerText = shortUrl;
+                    // クリックしても移動できるようにtitleにフルURLを入れる
+                    shortUrlEl.title = shortUrl;
                     
-                    // QRコード生成 (Google Charts API)
-                    // 150x150サイズ、URLをエンコードしてセット
+                    // QRコード生成 (goqr.me APIを使用)
                     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}`;
                     document.getElementById('qrcode-img').src = qrUrl;
 
@@ -142,10 +176,20 @@
 
         function copyURL() {
             const url = document.getElementById('shortUrl').innerText;
-            // SSL対応済みなのでnavigator.clipboardが確実に使えます
             navigator.clipboard.writeText(url).then(() => {
                 alert("コピーしました！");
             });
+        }
+
+        function downloadQR() {
+            const img = document.getElementById('qrcode-img');
+            if(!img.src) return;
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'sirius_qr.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
