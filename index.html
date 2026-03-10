@@ -18,7 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* 高さ可変に対応 */
             margin: 0;
         }
         .container {
@@ -60,8 +60,22 @@
             display: none;
             word-break: break-all;
         }
+        /* QRコード表示エリアのスタイル */
+        #qrcode-container {
+            margin-top: 1rem;
+            background: #fff;
+            padding: 10px;
+            display: inline-block;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        #qrcode-img {
+            display: block;
+            width: 150px;
+            height: 150px;
+        }
         .copy-btn {
-            margin-top: 0.5rem;
+            margin-top: 1rem;
             background: #555;
             font-size: 0.8rem;
         }
@@ -71,41 +85,67 @@
     <div class="container">
         <h1>URL Shortener</h1>
         <input type="url" id="urlInput" placeholder="https://example.com" required>
-        <button onclick="shortenURL()">短縮URLを生成</button>
+        <button id="generateBtn" onclick="shortenURL()">短縮URLを生成</button>
         
         <div id="result">
             <p style="margin:0; font-size:0.9rem; color:#666;">生成されたURL:</p>
             <strong id="shortUrl"></strong>
+            
+            <div id="qrcode-container">
+                <img id="qrcode-img" src="" alt="QRコード">
+            </div>
+            
             <button class="copy-btn" onclick="copyURL()">コピーする</button>
         </div>
     </div>
 
     <script>
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec"; // GASのデプロイURLをここに
-        const CUSTOM_DOMAIN = window.location.origin; // このサイトのドメイン
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec";
+        const CUSTOM_DOMAIN = window.location.origin;
 
         async function shortenURL() {
             const urlInput = document.getElementById('urlInput').value;
+            const btn = document.getElementById('generateBtn');
             if(!urlInput) return alert("URLを入力してください");
 
-            const res = await fetch(GAS_WEBAPP_URL, {
-                method: "POST",
-                body: JSON.stringify({ url: urlInput })
-            });
-            const data = await res.json();
+            btn.disabled = true;
+            btn.innerText = "生成中...";
 
-            if(data.success) {
-                const resultDiv = document.getElementById('result');
-                const shortUrl = `${CUSTOM_DOMAIN}/go.html?id=${data.id}`;
-                document.getElementById('shortUrl').innerText = shortUrl;
-                resultDiv.style.display = 'block';
+            try {
+                const res = await fetch(GAS_WEBAPP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ url: urlInput })
+                });
+                const data = await res.json();
+
+                if(data.success) {
+                    const resultDiv = document.getElementById('result');
+                    const shortUrl = `${CUSTOM_DOMAIN}/go.html?id=${data.id}`;
+                    
+                    // URL表示
+                    document.getElementById('shortUrl').innerText = shortUrl;
+                    
+                    // QRコード生成 (Google Charts API)
+                    // 150x150サイズ、URLをエンコードしてセット
+                    const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(shortUrl)}`;
+                    document.getElementById('qrcode-img').src = qrUrl;
+
+                    resultDiv.style.display = 'block';
+                }
+            } catch (e) {
+                alert("エラーが発生しました。");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "短縮URLを生成";
             }
         }
 
         function copyURL() {
             const url = document.getElementById('shortUrl').innerText;
-            navigator.clipboard.writeText(url);
-            alert("コピーしました！");
+            // SSL対応済みなのでnavigator.clipboardが確実に使えます
+            navigator.clipboard.writeText(url).then(() => {
+                alert("コピーしました！");
+            });
         }
     </script>
 </body>
