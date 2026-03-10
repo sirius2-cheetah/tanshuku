@@ -127,7 +127,7 @@
                     
                     // QRコード生成 (Google Charts API)
                     // 150x150サイズ、URLをエンコードしてセット
-                    const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(shortUrl)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}`;
                     document.getElementById('qrcode-img').src = qrUrl;
 
                     resultDiv.style.display = 'block';
