@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboScore Rescue - Score Simulator</title>
+    <style>
+        :root {
+            --bg-color: #f0f0f0; --card-bg: #ffffff; --text-color: #333; --border-color: #999;
+            --accent-color: #28a745; --penalty-bg: #ffeaea; --item-bg: #f9f9f9;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a; --card-bg: #2d2d2d; --text-color: #eee; --border-color: #555;
+            --accent-color: #4cd137; --penalty-bg: #3d2b2b; --item-bg: #3d3d3d;
+        }
+        body { font-family: 'Segoe UI', Meiryo, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; user-select: none; min-height: 100vh; }
+        .header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .title { font-size: 24px; font-weight: bold; }
+        .container { display: flex; width: 95vw; max-width: 1000px; gap: 20px; flex-wrap: wrap; }
+        .section-card { flex: 1; min-width: 300px; background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 2px solid var(--accent-color); text-align: center; }
+        .score-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--item-bg); margin-bottom: 8px; padding: 10px; border-radius: 8px; }
+        .item-info { flex: 1; } .item-name { font-weight: bold; font-size: 15px; } .item-pts { font-size: 12px; opacity: 0.7; }
+        .counter-group { display: flex; align-items: center; gap: 10px; }
+        .btn-round { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        .btn-round:hover { background: var(--accent-color); color: white; }
+        .count-val { min-width: 25px; text-align: center; font-weight: bold; font-size: 18px; }
+        .multiplier-info { background-color: var(--accent-color); color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 15px; font-weight: bold; }
+        .total-display { width: 95vw; max-width: 1000px; margin-top: 20px; background-color: var(--card-bg); border: 3px solid var(--accent-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .total-label { font-size: 18px; } .total-pts { font-size: 60px; font-weight: bold; color: var(--accent-color); } .formula { font-size: 14px; opacity: 0.8; margin-top: 5px; }
+        button.main-btn { padding: 10px 20px; cursor: pointer; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); font-weight: bold; transition: 0.2s; }
+        button.main-btn:hover { opacity: 0.8; }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+
+        /* ペイウォール用 */
+        #app-content { display: none; flex-direction: column; align-items: center; width: 100%; }
+        #paywall-content { display: block; margin-top: 50px; max-width: 500px; text-align: center; }
+        .paywall-info-box { background-color: var(--item-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin: 20px 0; text-align: left; font-size: 14px; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div id="paywall-content" class="section-card">
+        <h2 style="color: var(--accent-color); margin-top: 0;">RoboScore Rescue<br>PRO Simulator</h2>
+        <p>このシミュレーターをご利用いただくには、アクセス権の購入が必要です。</p>
+        
+        <div class="paywall-info-box">
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li><strong>販売者:</strong> SIRIUSII</li>
+                <li><strong>価格:</strong> 170 コイン (Chat Time Pay)</li>
+                <li><strong>データ保存:</strong> ご利用のブラウザに購入情報が記憶され、次回以降は支払い不要でアクセスできます。</li>
+            </ul>
+        </div>
+        
+        <button class="main-btn" style="background: var(--accent-color); color: white; width: 100%; font-size: 16px; padding: 15px;" onclick="openPayment()">
+            170 Coin で購入して解放する
+        </button>
+    </div>
+
+    <div id="app-content">
+        <div class="header">
+            <div class="title">RoboScore Rescue</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="main-btn" onclick="toggleTheme()">テーマ切替</button>
+                <button class="main-btn" onclick="resetAll()">リセット</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="section-card">
+                <div class="section-title">Line / Course Points</div>
+                <div id="course-items"></div>
+                <div class="score-item" style="margin-top: 20px; border: 1px dashed var(--border-color);">
+                    <div class="item-info">
+                        <div class="item-name">チェックポイント通過</div>
+                        <div class="item-pts">10点 × 箇所</div>
+                    </div>
+                    <div class="counter-group">
+                        <button class="btn-round" onclick="updateCount('cp', -1)">-</button>
+                        <span id="count-cp" class="count-val">0</span>
+                        <button class="btn-round" onclick="updateCount('cp', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">Evacuation Zone</div>
+                <div class="score-item">
+                    <div class="item-info"><div class="item-name">生還被災者 (Live)</div><div class="item-pts">Multiplier 加算対象</div></div>
+                    <div class="counter-group"><button class="btn-round" onclick="updateCount('vLive', -1)">-</button><span id="count-vLive" class="count-val">0</span><button class="btn-round" onclick="updateCount('vLive', 1)">+</button></div>
+                </div>
+                <div class="score-item">
+                    <div class="item-info"><div class="item-name">遺体被災者 (Dead)</div><div class="item-pts">Multiplier 加算対象</div></div>
+                    <div class="counter-group"><button class="btn-round" onclick="updateCount('vDead', -1)">-</button><span id="count-vDead" class="count-val">0</span><button class="btn-round" onclick="updateCount('vDead', 1)">+</button></div>
+                </div>
+                <div class="switch-container">
+                    <span>避難ゾーン脱出成功 (Exit Bonus)</span>
+                    <input type="checkbox" id="check-exit" style="transform: scale(1.5);" onchange="calcTotal()">
+                </div>
+                <div class="multiplier-info">現在の倍率: <span id="display-mul">1.0</span>x</div>
+                <div style="margin-top: 20px; font-size: 13px; opacity: 0.8;">※乗算ルール: 生還(x1.2), 遺体(x1.1)等。2025国際ルールを基準とした簡易計算を適用。</div>
+            </div>
+        </div>
+
+        <div class="total-display">
+            <div class="total-label">Final Score</div>
+            <div id="total-score" class="total-pts">0</div>
+            <div id="total-formula" class="formula">(タイル点 0 + CP 0) × 倍率 1.0 + ボーナス 0</div>
+        </div>
+    </div>
+
+    <script>
+        // ======= 決済・アクセス制御ロジック (リダイレクト方式) =======
+        const UNLOCK_KEY = 'roboscore_rescue_unlocked';
+        const DEPLOY_ID = 'AKfycbx5bammAxf5RJBGpzox1c6N5tkcx0eW5OuARHUNDO0n1EKIQWuu5O0yIrdoM-pUYkVY_Q';
+
+        // ページ読み込み時の処理
+        window.addEventListener('DOMContentLoaded', () => {
+            // ① URLに ?pay_status=success がついているかチェック (決済完了で戻ってきたか判定)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('pay_status') === 'success') {
+                // 決済成功！ローカルストレージに記憶
+                localStorage.setItem(UNLOCK_KEY, 'true');
+                
+                // URLから "?pay_status=success" を消して綺麗にする
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+                
+                alert("決済が完了しました！\nシミュレーターが解放されました。");
+            }
+
+            // ② ストレージを確認して画面を出し分ける
+            if (localStorage.getItem(UNLOCK_KEY) === 'true') {
+                showApp(); // 解放済みならアプリ表示
+            } else {
+                // 未購入ならペイウォール表示
+                document.getElementById('paywall-content').style.display = 'block';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        });
+
+        // 決済画面へジャンプする処理
+        function openPayment() {
+            // 現在のこのページのURLを取得（余計なパラメータを除いたクリーンなURL）
+            const currentUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const encodedReturnUrl = encodeURIComponent(currentUrl);
+            
+            // 決済URLの末尾に &redirect_url=○○ をつけて飛ぶ！
+            const PAY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec?page=payment&shop=SIRIUSII&item=RoboScore%20PRO&amount=170&redirect_url=${encodedReturnUrl}`;
+            
+            window.location.href = PAY_URL;
+        }
+
+        function showApp() {
+            document.getElementById('paywall-content').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+            initApp();
+        }
+
+        // ======= 以下、RoboScore シミュレーターのロジック =======
+        const config = [
+            { id: 'normal', name: '通常タイル', pts: 5 }, { id: 'inter', name: '交差点 / 突き当たり', pts: 10 },
+            { id: 'gap', name: 'ギャップ(切れ目)', pts: 10 }, { id: 'bump', name: 'スピードバンプ', pts: 10 },
+            { id: 'ramp', name: '傾斜路(タイル数)', pts: 10 }, { id: 'obs', name: '障害物', pts: 20 },
+            { id: 'seesaw', name: 'シーソー', pts: 20 }
+        ];
+
+        let state = { cp: 0, vLive: 0, vDead: 0 };
+        config.forEach(c => state[c.id] = 0);
+        let isAppInit = false;
+
+        function initApp() {
+            if (isAppInit) return;
+            isAppInit = true;
+            const container = document.getElementById('course-items');
+            config.forEach(c => {
+                container.innerHTML += `<div class="score-item"><div class="item-info"><div class="item-name">${c.name}</div><div class="item-pts">${c.pts}点 × 枚</div></div><div class="counter-group"><button class="btn-round" onclick="updateCount('${c.id}', -1)">-</button><span id="count-${c.id}" class="count-val">0</span><button class="btn-round" onclick="updateCount('${c.id}', 1)">+</button></div></div>`;
+            });
+            calcTotal();
+        }
+
+        function updateCount(id, val) { state[id] = Math.max(0, state[id] + val); document.getElementById(`count-${id}`).innerText = state[id]; calcTotal(); }
+
+        function calcTotal() {
+            let tileSum = 0; config.forEach(c => { tileSum += state[c.id] * c.pts; });
+            let cpPts = state.cp * 10;
+            let multiplier = 1.0 + (state.vLive * 0.2) + (state.vDead * 0.1);
+            multiplier = Math.round(multiplier * 10) / 10;
+            let exitBonus = document.getElementById('check-exit').checked ? 20 : 0;
+            let finalScore = Math.floor((tileSum + cpPts) * multiplier) + exitBonus;
+            document.getElementById('display-mul').innerText = multiplier.toFixed(1);
+            document.getElementById('total-score').innerText = finalScore;
+            document.getElementById('total-formula').innerText = `(${tileSum} + ${cpPts}) × ${multiplier.toFixed(1)} + ${exitBonus} = ${finalScore}`;
+        }
+
+        function toggleTheme() { document.body.dataset.theme = document.body.dataset.theme === "light" ? "dark" : "light"; }
+        function resetAll() {
+            if(confirm("全ての得点をリセットしますか？")) {
+                state = { cp: 0, vLive: 0, vDead: 0 }; config.forEach(c => state[c.id] = 0);
+                document.querySelectorAll('.count-val').forEach(el => el.innerText = '0');
+                document.getElementById('check-exit').checked = false; calcTotal();
+            }
+        }
+    </script>
+</body>
+</html>
