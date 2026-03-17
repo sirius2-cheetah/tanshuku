@@ -10,7 +10,7 @@
             --bg-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-color: #333;
-            --accent-bg: #eef2f7; /* 薄いグレーのアクセント */
+            --accent-bg: #eef2f7;
         }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -21,6 +21,8 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .container {
             background: var(--card-bg);
@@ -31,7 +33,38 @@
             max-width: 400px;
             text-align: center;
         }
-        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary-color); }
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary-color); margin-top: 0; }
+        
+        /* 💡 ペイウォールとアプリ本体の切り替え用 */
+        #app-content { display: none; }
+        #paywall-content { display: block; }
+        
+        /* ペイウォールの装飾 */
+        .paywall-info-box {
+            background-color: var(--accent-bg);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 1.5rem 0;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .pay-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        .pay-btn:hover { opacity: 0.9; }
+
+        /* ツール本体の装飾 */
         input {
             width: 100%;
             padding: 12px;
@@ -41,7 +74,7 @@
             box-sizing: border-box;
             font-size: 1rem;
         }
-        button {
+        button.action-btn {
             width: 100%;
             padding: 12px;
             background-color: var(--primary-color);
@@ -52,35 +85,29 @@
             font-size: 1rem;
             transition: opacity 0.2s;
         }
-        button:hover { opacity: 0.9; }
+        button.action-btn:hover { opacity: 0.9; }
         
-        /* 💡 結果エリアのスタイルを刷新 */
         #result {
             margin-top: 1.5rem;
-            padding: 1.5rem 1rem; /* パディングを広めに */
+            padding: 1.5rem 1rem;
             background: var(--accent-bg);
             border-radius: 8px;
             display: none;
             border: 1px solid #ddd;
         }
-        
         #result p { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666; }
         
-        /* 💡 URL表示をスタイリッシュに */
         #shortUrl {
             display: block;
             margin-bottom: 1rem;
             font-size: 1.1rem;
             font-weight: bold;
             color: var(--primary-color);
-            
-            /* 【修正ポイント1】改行を抑制し、はみ出た分は「...」にする */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        /* QRコード表示エリア */
         #qrcode-container {
             margin: 1rem 0;
             background: #fff;
@@ -96,7 +123,6 @@
             height: 150px;
         }
         
-        /* ボタンを2列に並べる */
         .action-btns {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -105,33 +131,90 @@
         }
         .copy-btn {
             background: #555;
+            color: white;
+            border: none;
+            border-radius: 6px;
             font-size: 0.9rem;
             padding: 10px;
+            cursor: pointer;
         }
+        .copy-btn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>URL Shortener</h1>
-        <input type="url" id="urlInput" placeholder="https://example.com" required>
-        <button id="generateBtn" onclick="shortenURL()">短縮URLを生成</button>
         
-        <div id="result">
-            <p>生成されたURL:</p>
-            <strong id="shortUrl"></strong>
+        <div id="paywall-content">
+            <h1>Sirius Shortener<br><span style="font-size: 1rem; color: #666;">PRO Access</span></h1>
+            <p style="color: #555; font-size: 0.95rem;">高機能URL短縮ツールの利用には、アクセス権の購入が必要です。</p>
             
-            <div id="qrcode-container">
-                <img id="qrcode-img" src="" alt="QRコード">
+            <div class="paywall-info-box">
+                <strong>【ツール仕様】</strong><br>
+                ・販売者: SIRIUSII<br>
+                ・価格: 50 コイン (Chat Time Pay)<br>
+                ・無期限アクセス (ブラウザに記憶されます)
             </div>
             
-            <div class="action-btns">
-                <button class="copy-btn" onclick="copyURL()">URLをコピー</button>
-                <button class="copy-btn" style="background:#666;" onclick="downloadQR()">QRを保存</button>
+            <button class="pay-btn" onclick="openPayment()">50 Coin でアクセス権を購入</button>
+        </div>
+
+        <div id="app-content">
+            <h1>URL Shortener</h1>
+            <input type="url" id="urlInput" placeholder="https://example.com" required>
+            <button class="action-btn" id="generateBtn" onclick="shortenURL()">短縮URLを生成</button>
+            
+            <div id="result">
+                <p>生成されたURL:</p>
+                <strong id="shortUrl"></strong>
+                
+                <div id="qrcode-container">
+                    <img id="qrcode-img" src="" alt="QRコード">
+                </div>
+                
+                <div class="action-btns">
+                    <button class="copy-btn" onclick="copyURL()">URLをコピー</button>
+                    <button class="copy-btn" style="background:#666;" onclick="downloadQR()">QRを保存</button>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
+        // ======= 決済・アクセス制御ロジック (リダイレクト方式) =======
+        const UNLOCK_KEY = 'sirius_shortener_unlocked';
+        const DEPLOY_ID = 'AKfycbx5bammAxf5RJBGpzox1c6N5tkcx0eW5OuARHUNDO0n1EKIQWuu5O0yIrdoM-pUYkVY_Q'; // Chat Time PayのID
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // URLから決済完了のシグナルを受け取る
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('pay_status') === 'success') {
+                localStorage.setItem(UNLOCK_KEY, 'true');
+                
+                // URLを綺麗にする
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+                
+                alert("決済が完了しました！\nSirius Shortenerが解放されました。");
+            }
+
+            // ストレージを確認して画面を出し分ける
+            if (localStorage.getItem(UNLOCK_KEY) === 'true') {
+                document.getElementById('paywall-content').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+            }
+        });
+
+        // 決済画面へジャンプする処理
+        function openPayment() {
+            const currentUrl = window.location.href.split('?')[0];
+            const encodedReturnUrl = encodeURIComponent(currentUrl);
+            const PAY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec?page=payment&shop=SIRIUSII&item=Shortener%20PRO&amount=50&redirect_url=${encodedReturnUrl}`;
+            
+            window.location.href = PAY_URL;
+        }
+
+        // ======= URL短縮ツールのメインロジック =======
         const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec";
         const CUSTOM_DOMAIN = window.location.origin;
 
@@ -154,13 +237,10 @@
                     const resultDiv = document.getElementById('result');
                     const shortUrl = `${CUSTOM_DOMAIN}/go.html?id=${data.id}`;
                     
-                    // URLセット
                     const shortUrlEl = document.getElementById('shortUrl');
                     shortUrlEl.innerText = shortUrl;
-                    // クリックしても移動できるようにtitleにフルURLを入れる
                     shortUrlEl.title = shortUrl;
                     
-                    // QRコード生成 (goqr.me APIを使用)
                     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}`;
                     document.getElementById('qrcode-img').src = qrUrl;
 
