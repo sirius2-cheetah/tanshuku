@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redirecting...</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: rgba(17, 24, 39, 0.85);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --sub: #94a3b8;
+      --accent: #0ea5e9;
+      --red: #f43f5e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.16), transparent 50%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 32px 24px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(14, 165, 233, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: var(--sub);
+      word-break: break-all;
+    }
+
+    .btn-home {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .error-icon {
+      font-size: 2rem;
+      color: var(--red);
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner" id="spinner"></div>
+    <div class="error-icon" id="errIcon">404</div>
+    <h1 id="statusTitle">リダイレクト先を確認しています...</h1>
+    <p id="statusDesc">しばらくお待ちください</p>
+    <a href="/" class="btn-home" id="homeBtn" style="display: none;">トップページへ戻る</a>
+  </div>
+
+  <script>
+    (async function () {
+      const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyaiAF5iKZs5fQ9k4TYp2nwEOXyXLWFf3iDf4WxlMvQaQBxlUcLpYBdeL_8cEf14q3R/exec";
+
+      const spinner = document.getElementById("spinner");
+      const errIcon = document.getElementById("errIcon");
+      const statusTitle = document.getElementById("statusTitle");
+      const statusDesc = document.getElementById("statusDesc");
+      const homeBtn = document.getElementById("homeBtn");
+
+      function showNotFound(title, desc) {
+        spinner.style.display = "none";
+        errIcon.style.display = "block";
+        statusTitle.textContent = title;
+        statusDesc.textContent = desc;
+        homeBtn.style.display = "inline-block";
+      }
+
+      const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, "");
+      const slug = decodeURIComponent(rawPath);
+
+      if (!slug) {
+        window.location.replace("/");
+        return;
+      }
+
+      try {
+        const endpoint = `${GAS_WEB_APP_URL}?action=resolve&slug=${encodeURIComponent(slug)}`;
+        const res = await fetch(endpoint);
+        const data = await res.json();
+
+        if (data.ok && data.url) {
+          statusTitle.textContent = "移動しています...";
+          statusDesc.textContent = data.url;
+          window.location.replace(data.url);
+        } else {
+          showNotFound(
+            "リンクが見つかりません",
+            `指定された短縮URL「/${slug}」は存在しないか、すでに削除されています。`
+          );
+        }
+      } catch (err) {
+        showNotFound(
+          "通信エラーが発生しました",
+          "リダイレクトサーバーへの接続に失敗しました。時間をおいて再度お試しください。"
+        );
+      }
+    })();
+  </script>
+</body>
+</html>
