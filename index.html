@@ -3,27 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>.click Link Shortener — 短縮URLジェネレーター</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Link Shortener — プライベート＆セキュアURL短縮</title>
   <style>
     :root {
-      --bg-base: #090d16;
-      --bg-card: rgba(17, 24, 39, 0.78);
-      --bg-input: rgba(15, 23, 42, 0.92);
-      --border: rgba(148, 163, 184, 0.16);
+      --bg-canvas: #050811;
+      --bg-surface: rgba(13, 19, 34, 0.72);
+      --bg-elevated: rgba(22, 31, 54, 0.78);
+      --bg-input: rgba(8, 13, 25, 0.88);
+      --border-subtle: rgba(148, 163, 184, 0.14);
+      --border-highlight: rgba(255, 255, 255, 0.12);
       --border-focus: #38bdf8;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
       --text-muted: #64748b;
-      --accent: #0ea5e9;
-      --accent-2: #6366f1;
-      --accent-glow: rgba(14, 165, 233, 0.35);
-      --green: #10b981;
-      --green-bg: rgba(16, 185, 129, 0.14);
-      --red: #f43f5e;
-      --red-bg: rgba(244, 63, 94, 0.14);
-      --radius-lg: 18px;
-      --radius-md: 11px;
-      --radius-sm: 7px;
+      --cyan: #0ea5e9;
+      --indigo: #6366f1;
+      --violet: #8b5cf6;
+      --emerald: #10b981;
+      --emerald-bg: rgba(16, 185, 129, 0.13);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.13);
+      --rose: #f43f5e;
+      --rose-bg: rgba(244, 63, 94, 0.13);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -36,226 +42,428 @@
 
     body {
       font-family: var(--font-sans);
-      background-color: var(--bg-base);
-      background-image:
-        radial-gradient(circle at 15% 12%, rgba(14, 165, 233, 0.16), transparent 36%),
-        radial-gradient(circle at 85% 88%, rgba(99, 102, 241, 0.15), transparent 40%);
-      color: var(--text-main);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
       min-height: 100vh;
-      padding: 28px 16px 60px;
       line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+      padding: 32px 16px 72px;
+    }
+
+    /* Ambient Mesh & Grid Background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse at 50% 25%, black 35%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 25%, black 35%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .aurora {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(95px);
+      opacity: 0.42;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatAurora 16s ease-in-out infinite alternate;
+    }
+
+    .aurora-1 {
+      width: 460px;
+      height: 460px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.45), transparent 70%);
+      top: -120px;
+      left: -80px;
+    }
+
+    .aurora-2 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.4), transparent 70%);
+      bottom: -160px;
+      right: -100px;
+      animation-delay: -6s;
+    }
+
+    @keyframes floatAurora {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(35px, 25px) scale(1.08); }
     }
 
     .container {
-      max-width: 960px;
+      max-width: 740px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Header */
-    .header {
-      display: flex;
-      flex-wrap: wrap;
+    /* Top Header */
+    .hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .domain-chip {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 18px 24px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.32);
+      color: #7dd3fc;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      box-shadow: 0 0 24px rgba(14, 165, 233, 0.18);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
+    .hero h1 {
+      font-size: clamp(1.65rem, 4vw, 2.15rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 25%, #bae6fd 65%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    /* Segmented Navigation */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: rgba(10, 15, 28, 0.85);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      backdrop-filter: blur(14px);
-      margin-bottom: 24px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      padding: 5px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    .nav-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 20px var(--accent-glow);
-      flex-shrink: 0;
+      gap: 8px;
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .brand h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .nav-tab:hover {
+      color: var(--text-primary);
     }
 
-    .domain-pill {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: rgba(14, 165, 233, 0.15);
-      border: 1px solid rgba(14, 165, 233, 0.35);
-      color: #7dd3fc;
+    .nav-tab.active {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(99, 102, 241, 0.24));
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.18);
     }
 
-    .brand p {
-      font-size: 0.82rem;
-      color: var(--text-sub);
+    /* Glass Panel */
+    .panel {
+      display: none;
+      animation: fadeSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .panel.active {
+      display: block;
     }
 
-    /* Card */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
-      margin-bottom: 24px;
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .card:last-child {
+    .glass-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top-color: var(--border-highlight);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      margin-bottom: 20px;
+    }
+
+    .glass-card:last-child {
       margin-bottom: 0;
     }
 
-    .card-header {
+    .section-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      margin-bottom: 20px;
       padding-bottom: 14px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
     }
 
-    /* Form */
+    .badge-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Inputs */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
-    @media (max-width: 680px) {
+    @media (max-width: 620px) {
       .form-row {
         grid-template-columns: 1fr;
       }
-    }
-
-    .form-group {
-      margin-bottom: 16px;
+      .glass-card {
+        padding: 22px 18px;
+      }
     }
 
     label {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--text-sub);
-      margin-bottom: 6px;
+      justify-content: space-between;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 7px;
     }
 
     .hint {
       font-family: var(--font-mono);
       font-size: 0.74rem;
+      font-weight: 500;
       color: var(--text-muted);
     }
 
+    .hint.ok { color: var(--emerald); }
+    .hint.err { color: var(--rose); }
+
+    .input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
     input[type="text"],
-    input[type="url"] {
+    input[type="url"],
+    input[type="password"] {
       width: 100%;
       background: var(--bg-input);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      color: var(--text-main);
-      padding: 12px 14px;
-      font-size: 0.92rem;
+      color: var(--text-primary);
+      padding: 13px 15px;
+      font-size: 0.94rem;
       font-family: var(--font-sans);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input.mono {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
     }
 
     input:focus {
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+      background: rgba(11, 18, 34, 0.98);
     }
 
-    .slug-input-wrap {
+    .input-box input {
+      padding-right: 76px;
+    }
+
+    .btn-in-field {
+      position: absolute;
+      right: 8px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-in-field:hover {
+      color: #fff;
+      border-color: var(--border-focus);
+    }
+
+    .slug-group {
       display: flex;
       align-items: stretch;
       background: var(--bg-input);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       overflow: hidden;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .slug-input-wrap:focus-within {
+    .slug-group:focus-within {
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
     }
 
     .slug-prefix {
       display: flex;
       align-items: center;
-      padding: 0 12px;
-      background: rgba(30, 41, 59, 0.65);
-      color: var(--text-sub);
+      padding: 0 13px;
+      background: rgba(30, 41, 59, 0.55);
+      border-right: 1px solid var(--border-subtle);
+      color: #7dd3fc;
       font-family: var(--font-mono);
-      font-size: 0.82rem;
-      border-right: 1px solid var(--border);
+      font-size: 0.84rem;
       white-space: nowrap;
     }
 
-    .slug-input-wrap input {
-      border: none;
-      border-radius: 0;
+    .slug-group input {
+      border: none !important;
+      border-radius: 0 !important;
       box-shadow: none !important;
-      background: transparent;
+      background: transparent !important;
       font-family: var(--font-mono);
+    }
+
+    /* Security Accordion / Box */
+    .security-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .security-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .security-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #c7d2fe;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .security-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+
+    .passkey-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(9, 14, 28, 0.75);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .passkey-info {
+      font-size: 0.82rem;
+    }
+
+    .passkey-info strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .passkey-info span {
+      color: var(--text-muted);
+      font-size: 0.76rem;
     }
 
     /* Buttons */
     .btn-primary {
       width: 100%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      background: linear-gradient(135deg, var(--cyan), var(--indigo));
       color: #fff;
       border: none;
       border-radius: var(--radius-md);
-      padding: 13px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      padding: 14px 22px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      box-shadow: 0 6px 20px var(--accent-glow);
-      transition: transform 0.15s, opacity 0.2s;
+      gap: 9px;
+      box-shadow: 0 8px 26px rgba(14, 165, 233, 0.35);
+      transition: transform 0.16s, box-shadow 0.2s, opacity 0.2s;
     }
 
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-1px);
+      box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
     }
 
     .btn-primary:disabled {
@@ -263,153 +471,322 @@
       cursor: not-allowed;
     }
 
-    .btn-ghost {
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid var(--border);
-      color: var(--text-sub);
-      border-radius: var(--radius-sm);
-      padding: 7px 12px;
-      font-size: 0.8rem;
+    .btn-secondary {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      padding: 10px 15px;
+      font-size: 0.83rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.16s;
     }
 
-    .btn-ghost:hover {
-      color: var(--text-main);
-      border-color: var(--text-sub);
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--border-focus);
+      background: rgba(30, 41, 59, 0.95);
     }
 
-    .btn-danger:hover {
-      color: #fda4af;
-      border-color: rgba(244, 63, 94, 0.5);
-      background: var(--red-bg);
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    /* Result Box */
-    .result-box {
-      margin-top: 18px;
-      padding: 16px;
+    .btn-passkey {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(14, 165, 233, 0.22));
+      border: 1px solid rgba(139, 92, 246, 0.48);
+      color: #ddd6fe;
       border-radius: var(--radius-md);
-      background: var(--green-bg);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      display: none;
+      padding: 9px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.16s;
     }
 
-    .result-box.active {
+    .btn-passkey:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.34), rgba(14, 165, 233, 0.34));
+      border-color: #a78bfa;
+      color: #fff;
+    }
+
+    .btn-passkey.registered {
+      background: var(--emerald-bg);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+    }
+
+    .btn-danger {
+      background: var(--rose-bg);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fda4af;
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.16s;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(244, 63, 94, 0.25);
+      border-color: #fb7185;
+      color: #fff;
+    }
+
+    /* Result Showcase */
+    .result-card {
+      display: none;
+      margin-top: 22px;
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.12), rgba(14, 165, 233, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      animation: fadeSlideUp 0.25s ease;
+    }
+
+    .result-card.active {
       display: block;
     }
 
-    .result-row {
+    .result-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
-    .short-link-display {
+    .result-url {
       font-family: var(--font-mono);
-      font-size: 1.08rem;
-      font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 800;
       color: #6ee7b7;
       text-decoration: none;
       word-break: break-all;
     }
 
-    .short-link-display:hover {
+    .result-url:hover {
       text-decoration: underline;
     }
 
-    .qr-wrap {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(16, 185, 129, 0.25);
+    .result-body {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(16, 185, 129, 0.22);
+      flex-wrap: wrap;
     }
 
-    .qr-wrap img {
-      width: 84px;
-      height: 84px;
-      border-radius: 8px;
-      background: #fff;
-      padding: 4px;
+    .qr-frame {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
-    /* Alert */
-    .alert {
+    .qr-frame canvas {
+      display: block;
+      width: 124px;
+      height: 124px;
+    }
+
+    .result-meta {
+      flex: 1;
+      min-width: 210px;
+      font-size: 0.83rem;
+      color: #d1fae5;
+    }
+
+    .meta-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .meta-tag {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(6, 9, 19, 0.55);
+      border: 1px solid rgba(110, 231, 183, 0.28);
+      color: #a7f3d0;
+    }
+
+    /* Analytics Dashboard */
+    .lookup-bar {
+      display: flex;
+      gap: 10px;
+    }
+
+    @media (max-width: 540px) {
+      .lookup-bar {
+        flex-direction: column;
+      }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-tile {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 15px;
+    }
+
+    .stat-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .stat-value.accent {
+      color: #38bdf8;
+    }
+
+    .detail-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-key {
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .detail-val {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      word-break: break-all;
+      text-align: right;
+    }
+
+    /* Management Lock / Unlock Zone */
+    .mgmt-zone {
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      background: rgba(10, 15, 29, 0.82);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .mgmt-zone.unlocked {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.07), rgba(10, 15, 29, 0.85));
+    }
+
+    .mgmt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
       margin-top: 14px;
-      padding: 12px 14px;
+    }
+
+    /* Alert & Toast */
+    .alert {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 15px;
       border-radius: var(--radius-md);
       font-size: 0.84rem;
-      display: none;
     }
 
     .alert.error {
       display: block;
-      background: var(--red-bg);
+      background: var(--rose-bg);
       border: 1px solid rgba(244, 63, 94, 0.35);
       color: #fecdd3;
     }
 
-    /* Table / List */
-    .table-wrap {
-      overflow-x: auto;
+    .alert.success {
+      display: block;
+      background: var(--emerald-bg);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
+    .alert.warn {
+      display: block;
+      background: var(--amber-bg);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fde68a;
     }
 
-    th {
-      text-align: left;
-      color: var(--text-sub);
-      font-weight: 500;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 12px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.09);
-      vertical-align: middle;
-    }
-
-    tr:hover td {
-      background: rgba(30, 41, 59, 0.35);
-    }
-
-    .td-slug {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: #7dd3fc;
-      white-space: nowrap;
-    }
-
-    .td-url {
-      max-width: 340px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--text-sub);
-    }
-
-    .click-badge {
-      display: inline-block;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      padding: 2px 9px;
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #f8fafc;
+      padding: 11px 20px;
       border-radius: 999px;
-      background: rgba(99, 102, 241, 0.16);
-      color: #c7d2fe;
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 99;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     .spinner {
@@ -428,165 +805,377 @@
   </style>
 </head>
 <body>
+  <div class="bg-grid"></div>
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+
   <div class="container">
-    <header class="header">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </svg>
-        </div>
-        <div>
-          <h1>
-            Link Shortener
-            <span class="domain-pill" id="hostBadge">loading...</span>
-          </h1>
-          <p>長いURLをシンプルで共有しやすい短縮リンクに即座に変換</p>
-        </div>
+    <header class="hero">
+      <div class="domain-chip">
+        <span class="pulse-dot"></span>
+        <span id="heroDomain">loading...</span>
       </div>
-      <div class="header-actions">
-        <button type="button" class="btn-ghost" id="refreshListBtn">一覧を更新</button>
-      </div>
+      <h1>Private Link Shortener</h1>
+      <p>作成したリンクは一覧公開されません。IDと認証情報を持つ本人のみが解析・管理できます。</p>
     </header>
 
-    <!-- Create Link Card -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">新しい短縮URLを作成</h2>
-        <span class="hint">HTTPS / HTTP</span>
-      </div>
+    <!-- Navigation -->
+    <nav class="nav-tabs" role="tablist">
+      <button type="button" class="nav-tab active" data-target="panel-create" role="tab" aria-selected="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        短縮URLを作成
+      </button>
+      <button type="button" class="nav-tab" data-target="panel-analytics" role="tab" aria-selected="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        アクセス解析 ＆ 管理
+      </button>
+    </nav>
 
-      <form id="createForm">
-        <div class="form-group">
-          <label for="targetUrl">
-            リダイレクト先 URL（必須）
-            <span class="hint">元の長いURL</span>
-          </label>
-          <input
-            type="url"
-            id="targetUrl"
-            placeholder="https://example.com/very/long/url/path..."
-            required
-          />
+    <!-- PANEL 1: CREATE -->
+    <section id="panel-create" class="panel active">
+      <div class="glass-card">
+        <div class="section-head">
+          <h2 class="section-title">新しい短縮リンクを発行</h2>
+          <span class="badge-pill">非公開モード</span>
         </div>
 
-        <div class="form-row">
+        <form id="createForm">
           <div class="form-group">
-            <label for="customSlug">
-              カスタムスラッグ（任意）
-              <span class="hint">空欄なら5桁自動生成</span>
+            <label for="targetUrl">
+              リダイレクト先 URL（必須）
+              <span class="hint">http:// または https://</span>
             </label>
-            <div class="slug-input-wrap">
-              <span class="slug-prefix" id="domainPrefix">https://example.click/</span>
+            <div class="input-box">
+              <input
+                type="url"
+                id="targetUrl"
+                placeholder="https://example.com/your/long/destination-url"
+                required
+              />
+              <button type="button" class="btn-in-field" id="pasteUrlBtn">貼付</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="customSlug">
+                希望ID指定（任意）
+                <span class="hint" id="slugRuleHint">空欄＝6文字自動 / 指定＝8文字以上</span>
+              </label>
+              <div class="slug-group">
+                <span class="slug-prefix" id="domainPrefix">https://.../</span>
+                <input
+                  type="text"
+                  id="customSlug"
+                  placeholder="custom-id-8chars"
+                  maxlength="40"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="memoInput">
+                メモ（任意・非公開）
+                <span class="hint">解析画面でのみ表示</span>
+              </label>
               <input
                 type="text"
-                id="customSlug"
-                placeholder="my-link"
-                pattern="[a-zA-Z0-9_-]{1,40}"
+                id="memoInput"
+                placeholder="例: イベント案内QR用"
+                maxlength="80"
               />
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="memoInput">
-              メモ・タイトル（任意）
-              <span class="hint">ラベル表示用</span>
-            </label>
-            <input
-              type="text"
-              id="memoInput"
-              placeholder="例: SNSプロフィール用 / 資料リンク"
-            />
+          <!-- Optional Security Setup -->
+          <div class="security-box">
+            <div class="security-header">
+              <div class="security-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                管理ロック保護（任意・後から解析画面でも設定可）
+              </div>
+              <span class="badge-pill">削除・ID変更に必須</span>
+            </div>
+            <p class="security-desc">
+              パスワードまたはパスキーを設定しておくと、後から「アクセス解析 ＆ 管理」画面で認証した本人のみ<strong>IDのランダム変更（6文字・指定不可）</strong>や<strong>リンク削除</strong>が可能になります。
+            </p>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="createPassword">
+                管理パスワード（任意）
+                <span class="hint">4文字以上</span>
+              </label>
+              <div class="input-box">
+                <input
+                  type="password"
+                  id="createPassword"
+                  class="mono"
+                  placeholder="設定しない場合は空欄"
+                  minlength="4"
+                />
+                <button type="button" class="btn-in-field" id="toggleCreatePwBtn">表示</button>
+              </div>
+            </div>
+
+            <div class="passkey-row">
+              <div class="passkey-info">
+                <strong>パスキー認証（Windows Hello / 生体認証）</strong>
+                <span id="createPasskeyStatus">未登録 — 端末のPINや指紋でワンタッチ管理ロック解除</span>
+              </div>
+              <button type="button" class="btn-passkey" id="registerCreatePasskeyBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"></path>
+                  <circle cx="16.5" cy="7.5" r=".5"></circle>
+                </svg>
+                <span id="registerCreatePasskeyLabel">パスキーを登録</span>
+              </button>
+            </div>
           </div>
-        </div>
 
-        <button type="submit" class="btn-primary" id="createBtn">
-          <span class="spinner" id="createSpinner"></span>
-          <span id="createBtnText">短縮URLを発行する</span>
-        </button>
-      </form>
+          <button type="submit" class="btn-primary" id="createBtn">
+            <span class="spinner" id="createSpinner"></span>
+            <span id="createBtnText">短縮URLを発行する</span>
+          </button>
+        </form>
 
-      <div id="createAlert" class="alert"></div>
+        <div id="createAlert" class="alert"></div>
 
-      <div id="resultBox" class="result-box">
-        <div class="result-row">
-          <a href="#" id="shortLinkOut" class="short-link-display" target="_blank" rel="noopener"></a>
-          <button type="button" class="btn-ghost" id="copyResultBtn">URLをコピー</button>
-        </div>
-        <div class="qr-wrap">
-          <img id="qrImg" src="" alt="QRコード" />
-          <div style="font-size: 0.82rem; color: #a7f3d0;">
-            <strong>短縮URLが発行されました</strong><br />
-            発行したリンクはすぐに共有可能で、アクセス数も自動カウントされます。
+        <!-- Issued Result -->
+        <div id="resultCard" class="result-card">
+          <div class="result-top">
+            <a href="#" id="issuedUrlLink" class="result-url" target="_blank" rel="noopener"></a>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" id="copyIssuedBtn">URLコピー</button>
+              <button type="button" class="btn-secondary" id="goAnalyticsBtn">解析画面を開く</button>
+            </div>
+          </div>
+
+          <div class="result-body">
+            <div class="qr-frame">
+              <canvas id="issuedQrCanvas" width="160" height="160"></canvas>
+              <button type="button" class="btn-secondary" id="downloadQrBtn" style="padding: 5px 10px; font-size: 0.74rem; width: 100%;">
+                QR保存 (PNG)
+              </button>
+            </div>
+            <div class="result-meta">
+              <strong>短縮リンクの発行が完了しました</strong><br />
+              このリンクは公開一覧には載りません。アクセス解析を行う場合は発行されたIDを控えておいてください。
+              <div class="meta-tag-row" id="issuedMetaTags"></div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Links List Card -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">発行済みリンク ＆ クリック統計</h2>
-        <span class="hint" id="totalLinksBadge">読み込み中...</span>
+    <!-- PANEL 2: ANALYTICS & MANAGEMENT -->
+    <section id="panel-analytics" class="panel">
+      <div class="glass-card">
+        <div class="section-head">
+          <h2 class="section-title">アクセス解析 ＆ リンク管理</h2>
+          <span class="badge-pill">ID照会</span>
+        </div>
+
+        <form id="lookupForm" class="form-group" style="margin-bottom: 0;">
+          <label for="lookupSlugInput">
+            短縮URLの ID を入力
+            <span class="hint">例: aB39xZ（スラッシュ不要）</span>
+          </label>
+          <div class="lookup-bar">
+            <div class="slug-group" style="flex: 1;">
+              <span class="slug-prefix" id="lookupPrefix">https://.../</span>
+              <input
+                type="text"
+                id="lookupSlugInput"
+                placeholder="IDを入力してください"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-primary" id="lookupBtn" style="width: auto; padding: 12px 24px;">
+              <span class="spinner" id="lookupSpinner"></span>
+              <span>照会する</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="lookupAlert" class="alert"></div>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>短縮URL</th>
-              <th>転送先 URL</th>
-              <th>メモ</th>
-              <th>クリック数</th>
-              <th>作成日時</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="linksTableBody">
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">
-                データを読み込んでいます...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Analytics Result Area -->
+      <div id="analyticsResultWrap" style="display: none;">
+        <div class="glass-card">
+          <div class="section-head">
+            <h3 class="section-title" id="analyticsTitleId">/------</h3>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-secondary" id="copyAnalyticsUrlBtn">短縮URLコピー</button>
+              <button type="button" class="btn-secondary" id="refreshAnalyticsBtn">最新に更新</button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-tile">
+              <div class="stat-label">総クリック数</div>
+              <div class="stat-value accent" id="statClicks">0</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-label">作成日時</div>
+              <div class="stat-value" id="statCreated" style="font-size: 0.98rem; padding-top: 4px;">—</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-label">セキュリティ保護</div>
+              <div class="stat-value" id="statSecurity" style="font-size: 0.95rem; padding-top: 4px;">未設定</div>
+            </div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-row">
+              <span class="detail-key">転送先 URL</span>
+              <span class="detail-val">
+                <a href="#" id="detailTargetUrl" target="_blank" rel="noopener" style="color: #7dd3fc;"></a>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">メモ</span>
+              <span class="detail-val" id="detailMemo">—</span>
+            </div>
+          </div>
+
+          <!-- Management & Auth Box -->
+          <div class="mgmt-zone" id="mgmtZone">
+            <div class="security-header">
+              <div class="security-title" id="mgmtHeaderTitle">
+                リンク管理コントロール
+              </div>
+              <span class="badge-pill" id="mgmtLockBadge">ロック中</span>
+            </div>
+
+            <!-- Case A: No Password/Passkey Set Yet -> Allow Setting Security -->
+            <div id="setupSecurityArea" style="display: none;">
+              <p class="security-desc">
+                このリンクにはまだパスワード／パスキーが設定されていません。<br />
+                <strong>パスワード設定後のみ</strong>、リンクの削除やIDのランダム変更（6文字・指定不可）が可能になります。
+              </p>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label for="setupNewPassword">
+                  新規パスワードを設定
+                  <span class="hint">4文字以上</span>
+                </label>
+                <input
+                  type="password"
+                  id="setupNewPassword"
+                  class="mono"
+                  placeholder="管理用パスワードを入力"
+                  minlength="4"
+                />
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <button type="button" class="btn-secondary" id="saveInitialPwBtn">
+                  パスワードを設定してロック解除
+                </button>
+                <button type="button" class="btn-passkey" id="saveInitialPasskeyBtn">
+                  パスキーも登録する
+                </button>
+              </div>
+            </div>
+
+            <!-- Case B: Protected & Locked -> Authenticate -->
+            <div id="authUnlockArea" style="display: none;">
+              <p class="security-desc">
+                削除およびID変更（6文字ランダム再発行）を行うには、設定済みのパスワードまたはパスキーで認証してください。
+              </p>
+
+              <div id="pwAuthBox" class="form-group" style="margin-bottom: 12px;">
+                <label for="unlockPasswordInput">管理パスワードで認証</label>
+                <div class="lookup-bar">
+                  <input
+                    type="password"
+                    id="unlockPasswordInput"
+                    class="mono"
+                    placeholder="パスワードを入力"
+                  />
+                  <button type="button" class="btn-secondary" id="unlockWithPwBtn">
+                    ロック解除
+                  </button>
+                </div>
+              </div>
+
+              <div id="pkAuthBox" style="display: none;">
+                <button type="button" class="btn-passkey" id="unlockWithPasskeyBtn" style="width: 100%; justify-content: center; padding: 12px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"></path>
+                    <circle cx="16.5" cy="7.5" r=".5"></circle>
+                  </svg>
+                  パスキー（Windows Hello / 生体認証）でロック解除
+                </button>
+              </div>
+            </div>
+
+            <!-- Case C: Unlocked -> Regenerate ID & Delete -->
+            <div id="unlockedActionsArea" style="display: none;">
+              <p class="security-desc" style="color: #a7f3d0;">
+                認証済みです。IDのランダム変更（新しい6文字IDへ切り替え・指定不可）またはリンクの完全削除を実行できます。
+              </p>
+
+              <div class="mgmt-actions">
+                <button type="button" class="btn-secondary" id="regenIdBtn">
+                  IDをランダム変更する（6文字・指定不可）
+                </button>
+                <button type="button" class="btn-passkey" id="addPasskeyAfterUnlockBtn">
+                  パスキーを追加登録
+                </button>
+                <button type="button" class="btn-danger" id="deleteLinkBtn">
+                  このリンクを削除する
+                </button>
+              </div>
+            </div>
+
+            <div id="mgmtAlert" class="alert"></div>
+          </div>
+        </div>
       </div>
     </section>
   </div>
 
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script>
     (function () {
-      // 固定のGASウェブアプリURL（UIには非表示）
+      // 固定GASデプロイURL（UI非表示）
       const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyaiAF5iKZs5fQ9k4TYp2nwEOXyXLWFf3iDf4WxlMvQaQBxlUcLpYBdeL_8cEf14q3R/exec";
 
-      const hostBadge = document.getElementById("hostBadge");
-      const domainPrefix = document.getElementById("domainPrefix");
+      // ドメイン表示解決（Punycodeの日本語ドメインも綺麗に表示）
+      const PUNYCODE_DISPLAY_MAP = {
+        "xn--zqs073d.top": "短縮.top"
+      };
+      const rawHost = window.location.hostname || "a.rcj-k.click";
+      const displayHost = PUNYCODE_DISPLAY_MAP[rawHost] || rawHost;
+      const protocol = window.location.protocol.startsWith("http") ? window.location.protocol : "https:";
+      const baseDisplayOrigin = `${protocol}//${displayHost}`;
 
-      const createForm = document.getElementById("createForm");
-      const targetUrlInput = document.getElementById("targetUrl");
-      const customSlugInput = document.getElementById("customSlug");
-      const memoInput = document.getElementById("memoInput");
-      const createBtn = document.getElementById("createBtn");
-      const createSpinner = document.getElementById("createSpinner");
-      const createBtnText = document.getElementById("createBtnText");
-      const createAlert = document.getElementById("createAlert");
+      document.getElementById("heroDomain").textContent = displayHost;
+      document.getElementById("domainPrefix").textContent = baseDisplayOrigin + "/";
+      document.getElementById("lookupPrefix").textContent = baseDisplayOrigin + "/";
 
-      const resultBox = document.getElementById("resultBox");
-      const shortLinkOut = document.getElementById("shortLinkOut");
-      const copyResultBtn = document.getElementById("copyResultBtn");
-      const qrImg = document.getElementById("qrImg");
-
-      const linksTableBody = document.getElementById("linksTableBody");
-      const totalLinksBadge = document.getElementById("totalLinksBadge");
-      const refreshListBtn = document.getElementById("refreshListBtn");
-
-      const baseOrigin = window.location.origin.startsWith("http")
-        ? window.location.origin.replace(/\/+$/, "")
-        : "https://example.click";
-
-      hostBadge.textContent = window.location.hostname || "example.click";
-      domainPrefix.textContent = baseOrigin + "/";
+      // Toast Notification
+      const toastEl = document.getElementById("toast");
+      let toastTimer = null;
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2400);
+      }
 
       function showAlert(el, type, msg) {
         el.className = "alert " + type;
@@ -598,99 +1187,452 @@
         el.textContent = "";
       }
 
-      function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
+      // Tabs
+      const navTabs = document.querySelectorAll(".nav-tab");
+      const panels = document.querySelectorAll(".panel");
+      function switchTab(targetId) {
+        navTabs.forEach((t) => {
+          const isTarget = t.dataset.target === targetId;
+          t.classList.toggle("active", isTarget);
+          t.setAttribute("aria-selected", String(isTarget));
+        });
+        panels.forEach((p) => p.classList.toggle("active", p.id === targetId));
       }
 
-      async function fetchLinks() {
-        try {
-          const url = `${GAS_WEB_APP_URL}?action=list`;
-          const res = await fetch(url);
-          const data = await res.json();
+      navTabs.forEach((tab) => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.target));
+      });
 
-          if (!data.ok) {
-            totalLinksBadge.textContent = "取得エラー";
-            linksTableBody.innerHTML = `
-              <tr>
-                <td colspan="6" style="text-align: center; color: #fda4af; padding: 28px;">
-                  一覧の取得に失敗しました: ${escapeHtml(data.error || "不明なエラー")}
-                </td>
-              </tr>`;
-            return;
+      // =========================================================
+      // Pure-JS Compact QR Code Renderer (Canvas)
+      // =========================================================
+      const QRGen = (function () {
+        const EXP = new Array(512);
+        const LOG = new Array(256);
+        for (let i = 0; i < 8; i++) EXP[i] = 1 << i;
+        for (let i = 8; i < 256; i++) {
+          EXP[i] = EXP[i - 4] ^ EXP[i - 5] ^ EXP[i - 6] ^ EXP[i - 8];
+        }
+        for (let i = 0; i < 255; i++) {
+          EXP[i + 255] = EXP[i];
+          LOG[EXP[i]] = i;
+        }
+        function gmul(a, b) {
+          return a === 0 || b === 0 ? 0 : EXP[LOG[a] + LOG[b]];
+        }
+        function rsGenerator(ecLen) {
+          let poly = [1];
+          for (let i = 0; i < ecLen; i++) {
+            const next = new Array(poly.length + 1).fill(0);
+            for (let j = 0; j < poly.length; j++) {
+              next[j] ^= poly[j];
+              next[j + 1] ^= gmul(poly[j], EXP[i]);
+            }
+            poly = next;
+          }
+          return poly;
+        }
+        function rsEncode(data, ecLen) {
+          const gen = rsGenerator(ecLen);
+          const res = data.concat(new Array(ecLen).fill(0));
+          for (let i = 0; i < data.length; i++) {
+            const coef = res[i];
+            if (coef !== 0) {
+              for (let j = 0; j < gen.length; j++) {
+                res[i + j] ^= gmul(gen[j], coef);
+              }
+            }
+          }
+          return res.slice(data.length);
+        }
+
+        // Version 1..6 (Level L capacity in bytes: 17, 32, 53, 78, 106, 134)
+        const SPECS = [
+          null,
+          { size: 21, total: 26, ec: 7, align: [] },
+          { size: 25, total: 44, ec: 10, align: [6, 18] },
+          { size: 29, total: 70, ec: 15, align: [6, 22] },
+          { size: 33, total: 100, ec: 20, align: [6, 26] },
+          { size: 37, total: 134, ec: 26, align: [6, 30] },
+          { size: 41, total: 172, ec: 36, align: [6, 34] }
+        ];
+
+        function makeMatrix(text) {
+          const bytes = Array.from(new TextEncoder().encode(text));
+          let ver = 1;
+          while (ver < SPECS.length && bytes.length + 2 > SPECS[ver].total - SPECS[ver].ec) {
+            ver++;
+          }
+          if (ver >= SPECS.length) ver = SPECS.length - 1;
+          const spec = SPECS[ver];
+          const dataCap = spec.total - spec.ec;
+          const payload = bytes.slice(0, dataCap - 2);
+
+          const bits = [];
+          function pushBits(val, len) {
+            for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
+          }
+          pushBits(0b0100, 4); // Byte mode
+          pushBits(payload.length, 8);
+          payload.forEach((b) => pushBits(b, 8));
+          pushBits(0, Math.min(4, dataCap * 8 - bits.length));
+          while (bits.length % 8 !== 0) bits.push(0);
+
+          const codewords = [];
+          for (let i = 0; i < bits.length; i += 8) {
+            let b = 0;
+            for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j];
+            codewords.push(b);
+          }
+          const pads = [0xec, 0x11];
+          let padIdx = 0;
+          while (codewords.length < dataCap) {
+            codewords.push(pads[padIdx++ % 2]);
+          }
+          const ecWords = rsEncode(codewords, spec.ec);
+          const allWords = codewords.concat(ecWords);
+
+          const n = spec.size;
+          const grid = Array.from({ length: n }, () => new Array(n).fill(null));
+          const reserved = Array.from({ length: n }, () => new Array(n).fill(false));
+
+          function setModule(r, c, val, isRes) {
+            if (r >= 0 && r < n && c >= 0 && c < n) {
+              grid[r][c] = val ? 1 : 0;
+              if (isRes) reserved[r][c] = true;
+            }
           }
 
-          renderTable(data.items || []);
-        } catch (err) {
-          totalLinksBadge.textContent = "通信エラー";
-          linksTableBody.innerHTML = `
-            <tr>
-              <td colspan="6" style="text-align: center; color: #fda4af; padding: 28px;">
-                サーバーへの接続に失敗しました。時間をおいて再読み込みしてください。
-              </td>
-            </tr>`;
+          function drawFinder(r, c) {
+            for (let dr = -1; dr <= 7; dr++) {
+              for (let dc = -1; dc <= 7; dc++) {
+                const inBox = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6;
+                const val =
+                  inBox &&
+                  (dr === 0 || dr === 6 || dc === 0 || dc === 6 || (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4));
+                setModule(r + dr, c + dc, val, true);
+              }
+            }
+          }
+
+          drawFinder(0, 0);
+          drawFinder(0, n - 7);
+          drawFinder(n - 7, 0);
+
+          if (spec.align.length > 0) {
+            const p = spec.align[1];
+            for (let dr = -2; dr <= 2; dr++) {
+              for (let dc = -2; dc <= 2; dc++) {
+                const val = Math.abs(dr) === 2 || Math.abs(dc) === 2 || (dr === 0 && dc === 0);
+                setModule(p + dr, p + dc, val, true);
+              }
+            }
+          }
+
+          for (let i = 8; i < n - 8; i++) {
+            setModule(6, i, i % 2 === 0, true);
+            setModule(i, 6, i % 2 === 0, true);
+          }
+          setModule(n - 8, 8, 1, true);
+
+          // Reserve format info areas
+          for (let i = 0; i < 9; i++) {
+            if (i !== 6) {
+              reserved[8][i] = true;
+              reserved[i][8] = true;
+            }
+          }
+          for (let i = 0; i < 8; i++) {
+            reserved[8][n - 1 - i] = true;
+            reserved[n - 1 - i][8] = true;
+          }
+
+          // Place data bits (Mask 0: (r + c) % 2 === 0)
+          let bitIdx = 0;
+          let dir = -1;
+          for (let col = n - 1; col > 0; col -= 2) {
+            if (col === 6) col--;
+            for (let step = 0; step < n; step++) {
+              const r = dir === -1 ? n - 1 - step : step;
+              for (let cOff = 0; cOff < 2; cOff++) {
+                const c = col - cOff;
+                if (!reserved[r][c]) {
+                  const word = allWords[Math.floor(bitIdx / 8)] || 0;
+                  const bit = (word >> (7 - (bitIdx % 8))) & 1;
+                  bitIdx++;
+                  const masked = (r + c) % 2 === 0 ? bit ^ 1 : bit;
+                  grid[r][c] = masked;
+                }
+              }
+            }
+            dir = -dir;
+          }
+
+          // Format bits for Level L (01), Mask 0 (000) -> 0x77c4
+          const fmt = 0x77c4;
+          for (let i = 0; i < 15; i++) {
+            const bit = (fmt >> i) & 1;
+            if (i < 6) grid[8][i] = bit;
+            else if (i < 8) grid[8][i + 1] = bit;
+            else grid[8][n - 15 + i] = bit;
+
+            if (i < 8) grid[n - 1 - i][8] = bit;
+            else if (i < 9) grid[15 - i][8] = bit;
+            else grid[14 - i][8] = bit;
+          }
+
+          return grid;
         }
+
+        return {
+          renderToCanvas(canvas, text) {
+            const matrix = makeMatrix(text);
+            const count = matrix.length;
+            const quiet = 2;
+            const total = count + quiet * 2;
+            const size = 240;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, size, size);
+            const cell = size / total;
+            ctx.fillStyle = "#090d16";
+            for (let r = 0; r < count; r++) {
+              for (let c = 0; c < count; c++) {
+                if (matrix[r][c]) {
+                  ctx.fillRect(
+                    Math.floor((c + quiet) * cell),
+                    Math.floor((r + quiet) * cell),
+                    Math.ceil(cell),
+                    Math.ceil(cell)
+                  );
+                }
+              }
+            }
+          }
+        };
+      })();
+
+      // =========================================================
+      // WebAuthn Passkey Helpers
+      // =========================================================
+      function bufferToBase64Url(buf) {
+        const bytes = new Uint8Array(buf);
+        let binary = "";
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
       }
 
-      function renderTable(items) {
-        totalLinksBadge.textContent = `${items.length} 件`;
-        if (items.length === 0) {
-          linksTableBody.innerHTML = `
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">
-                まだ短縮URLは登録されていません
-              </td>
-            </tr>`;
+      function base64UrlToBuffer(str) {
+        let b64 = String(str).replace(/-/g, "+").replace(/_/g, "/");
+        while (b64.length % 4 !== 0) b64 += "=";
+        const binary = atob(b64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+
+      async function createBrowserPasskey(labelName) {
+        if (!window.PublicKeyCredential || !navigator.credentials) {
+          throw new Error("このブラウザまたは接続環境はパスキー（WebAuthn）に対応していません。");
+        }
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        const userId = new TextEncoder().encode(labelName || "link-owner");
+
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge: challenge,
+            rp: {
+              name: "Link Shortener",
+              id: window.location.hostname
+            },
+            user: {
+              id: userId,
+              name: labelName || "link-owner",
+              displayName: labelName || "Link Owner"
+            },
+            pubKeyCredParams: [
+              { type: "public-key", alg: -7 },
+              { type: "public-key", alg: -257 }
+            ],
+            authenticatorSelection: {
+              residentKey: "preferred",
+              userVerification: "preferred"
+            },
+            timeout: 60000
+          }
+        });
+
+        const passkeyId = bufferToBase64Url(cred.rawId);
+        const passkeyPub =
+          cred.response && typeof cred.response.getPublicKey === "function" && cred.response.getPublicKey()
+            ? bufferToBase64Url(cred.response.getPublicKey())
+            : "";
+
+        return { passkeyId, passkeyPub };
+      }
+
+      async function getBrowserPasskeyAssertion(passkeyId) {
+        if (!window.PublicKeyCredential || !navigator.credentials) {
+          throw new Error("このブラウザはパスキー認証に対応していません。");
+        }
+        const chalRes = await fetch(`${GAS_WEB_APP_URL}?action=challenge`);
+        const chalData = await chalRes.json();
+        if (!chalData.ok || !chalData.challenge) {
+          throw new Error("認証チャレンジの取得に失敗しました。");
+        }
+
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge: base64UrlToBuffer(chalData.challenge),
+            rpId: window.location.hostname,
+            allowCredentials: [
+              {
+                type: "public-key",
+                id: base64UrlToBuffer(passkeyId)
+              }
+            ],
+            userVerification: "preferred",
+            timeout: 60000
+          }
+        });
+
+        return {
+          id: bufferToBase64Url(assertion.rawId),
+          clientDataJSON: bufferToBase64Url(assertion.response.clientDataJSON),
+          authenticatorData: bufferToBase64Url(assertion.response.authenticatorData),
+          signature: bufferToBase64Url(assertion.response.signature)
+        };
+      }
+
+      // =========================================================
+      // Panel 1: Create Short URL
+      // =========================================================
+      const createForm = document.getElementById("createForm");
+      const targetUrlInput = document.getElementById("targetUrl");
+      const pasteUrlBtn = document.getElementById("pasteUrlBtn");
+      const customSlugInput = document.getElementById("customSlug");
+      const slugRuleHint = document.getElementById("slugRuleHint");
+      const memoInput = document.getElementById("memoInput");
+      const createPasswordInput = document.getElementById("createPassword");
+      const toggleCreatePwBtn = document.getElementById("toggleCreatePwBtn");
+
+      const registerCreatePasskeyBtn = document.getElementById("registerCreatePasskeyBtn");
+      const registerCreatePasskeyLabel = document.getElementById("registerCreatePasskeyLabel");
+      const createPasskeyStatus = document.getElementById("createPasskeyStatus");
+
+      const createBtn = document.getElementById("createBtn");
+      const createSpinner = document.getElementById("createSpinner");
+      const createBtnText = document.getElementById("createBtnText");
+      const createAlert = document.getElementById("createAlert");
+
+      const resultCard = document.getElementById("resultCard");
+      const issuedUrlLink = document.getElementById("issuedUrlLink");
+      const copyIssuedBtn = document.getElementById("copyIssuedBtn");
+      const goAnalyticsBtn = document.getElementById("goAnalyticsBtn");
+      const issuedQrCanvas = document.getElementById("issuedQrCanvas");
+      const downloadQrBtn = document.getElementById("downloadQrBtn");
+      const issuedMetaTags = document.getElementById("issuedMetaTags");
+
+      let pendingCreatePasskey = null;
+      let lastIssuedSlug = "";
+
+      pasteUrlBtn.addEventListener("click", async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            targetUrlInput.value = text.trim();
+            showToast("クリップボードからURLを貼り付けました");
+          }
+        } catch (e) {
+          showToast("貼り付け権限がありません。手動で入力してください");
+        }
+      });
+
+      toggleCreatePwBtn.addEventListener("click", () => {
+        const isPw = createPasswordInput.type === "password";
+        createPasswordInput.type = isPw ? "text" : "password";
+        toggleCreatePwBtn.textContent = isPw ? "隠す" : "表示";
+      });
+
+      customSlugInput.addEventListener("input", () => {
+        const val = customSlugInput.value.trim();
+        if (val.length === 0) {
+          slugRuleHint.className = "hint";
+          slugRuleHint.textContent = "空欄＝6文字自動 / 指定＝8文字以上";
+        } else if (!/^[a-zA-Z0-9_-]*$/.test(val)) {
+          slugRuleHint.className = "hint err";
+          slugRuleHint.textContent = "半角英数字・-・_ のみ使用可";
+        } else if (val.length < 8) {
+          slugRuleHint.className = "hint err";
+          slugRuleHint.textContent = `現在 ${val.length} 文字（指定時は8文字以上必須）`;
+        } else {
+          slugRuleHint.className = "hint ok";
+          slugRuleHint.textContent = `OK（${val.length} 文字）`;
+        }
+      });
+
+      registerCreatePasskeyBtn.addEventListener("click", async () => {
+        clearAlert(createAlert);
+        if (pendingCreatePasskey) {
+          pendingCreatePasskey = null;
+          registerCreatePasskeyBtn.classList.remove("registered");
+          registerCreatePasskeyLabel.textContent = "パスキーを登録";
+          createPasskeyStatus.textContent = "未登録 — 端末のPINや指紋でワンタッチ管理ロック解除";
           return;
         }
 
-        linksTableBody.innerHTML = items
-          .map((item) => {
-            const fullShort = `${baseOrigin}/${item.slug}`;
-            return `
-              <tr>
-                <td class="td-slug">
-                  <a href="${escapeHtml(fullShort)}" target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">
-                    /${escapeHtml(item.slug)}
-                  </a>
-                </td>
-                <td class="td-url" title="${escapeHtml(item.url)}">
-                  <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color: inherit;">
-                    ${escapeHtml(item.url)}
-                  </a>
-                </td>
-                <td>${escapeHtml(item.memo || "—")}</td>
-                <td><span class="click-badge">${item.clicks} clicks</span></td>
-                <td style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; white-space: nowrap;">
-                  ${escapeHtml(item.created_at)}
-                </td>
-                <td style="white-space: nowrap;">
-                  <button type="button" class="btn-ghost copy-row-btn" data-url="${escapeHtml(fullShort)}">コピー</button>
-                  <button type="button" class="btn-ghost btn-danger del-row-btn" data-slug="${escapeHtml(item.slug)}">削除</button>
-                </td>
-              </tr>
-            `;
-          })
-          .join("");
-      }
+        try {
+          const label = customSlugInput.value.trim() || "short-link-owner";
+          const pk = await createBrowserPasskey(label);
+          pendingCreatePasskey = pk;
+          registerCreatePasskeyBtn.classList.add("registered");
+          registerCreatePasskeyLabel.textContent = "パスキー登録済み（解除）";
+          createPasskeyStatus.textContent = "準備完了 — このパスキーがリンクに紐づけられます";
+          showToast("パスキーの認証に成功しました");
+        } catch (err) {
+          showAlert(createAlert, "warn", "パスキー登録: " + err.message);
+        }
+      });
 
       createForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         clearAlert(createAlert);
 
+        const url = targetUrlInput.value.trim();
+        const slug = customSlugInput.value.trim();
+        const memo = memoInput.value.trim();
+        const password = createPasswordInput.value.trim();
+
+        if (slug && (slug.length < 8 || !/^[a-zA-Z0-9_-]{8,40}$/.test(slug))) {
+          showAlert(createAlert, "error", "カスタムIDを指定する場合は8〜40文字の半角英数字・ハイフン・アンダースコアで入力してください。");
+          return;
+        }
+
+        if (password && password.length < 4) {
+          showAlert(createAlert, "error", "管理パスワードは4文字以上で入力してください。");
+          return;
+        }
+
         createBtn.disabled = true;
         createSpinner.style.display = "inline-block";
-        createBtnText.textContent = "発行中...";
+        createBtnText.textContent = "短縮URLを発行中...";
 
         try {
           const payload = {
             action: "create",
-            url: targetUrlInput.value.trim(),
-            slug: customSlugInput.value.trim(),
-            memo: memoInput.value.trim()
+            url: url,
+            slug: slug,
+            memo: memo,
+            password: password,
+            passkeyId: pendingCreatePasskey ? pendingCreatePasskey.passkeyId : "",
+            passkeyPub: pendingCreatePasskey ? pendingCreatePasskey.passkeyPub : ""
           };
 
           const res = await fetch(GAS_WEB_APP_URL, {
@@ -698,24 +1640,42 @@
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
           });
-
           const data = await res.json();
+
           if (!data.ok) {
             showAlert(createAlert, "error", data.error || "発行に失敗しました");
             return;
           }
 
-          const shortUrl = `${baseOrigin}/${data.item.slug}`;
-          shortLinkOut.href = shortUrl;
-          shortLinkOut.textContent = shortUrl;
-          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shortUrl)}`;
-          resultBox.classList.add("active");
+          const item = data.item;
+          lastIssuedSlug = item.slug;
+          const fullShortUrl = `${baseDisplayOrigin}/${item.slug}`;
 
+          issuedUrlLink.href = fullShortUrl;
+          issuedUrlLink.textContent = fullShortUrl;
+          QRGen.renderToCanvas(issuedQrCanvas, fullShortUrl);
+
+          const tags = [`ID: ${item.slug} (${item.slug.length}文字)`];
+          if (item.hasPassword) tags.push("パスワード保護: ON");
+          if (item.hasPasskey) tags.push("パスキー保護: ON");
+          if (!item.hasPassword && !item.hasPasskey) tags.push("セキュリティ保護: 未設定");
+          issuedMetaTags.innerHTML = tags.map((t) => `<span class="meta-tag">${t}</span>`).join("");
+
+          resultCard.classList.add("active");
+          showToast("短縮URLを発行しました");
+
+          // Reset form inputs
           targetUrlInput.value = "";
           customSlugInput.value = "";
           memoInput.value = "";
+          createPasswordInput.value = "";
+          slugRuleHint.className = "hint";
+          slugRuleHint.textContent = "空欄＝6文字自動 / 指定＝8文字以上";
 
-          fetchLinks();
+          pendingCreatePasskey = null;
+          registerCreatePasskeyBtn.classList.remove("registered");
+          registerCreatePasskeyLabel.textContent = "パスキーを登録";
+          createPasskeyStatus.textContent = "未登録 — 端末のPINや指紋でワンタッチ管理ロック解除";
         } catch (err) {
           showAlert(createAlert, "error", "通信エラーが発生しました: " + err.message);
         } finally {
@@ -725,54 +1685,415 @@
         }
       });
 
-      linksTableBody.addEventListener("click", async (e) => {
-        const copyBtn = e.target.closest(".copy-row-btn");
-        if (copyBtn) {
-          await navigator.clipboard.writeText(copyBtn.dataset.url);
-          const orig = copyBtn.textContent;
-          copyBtn.textContent = "完了!";
-          setTimeout(() => (copyBtn.textContent = orig), 1200);
+      copyIssuedBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(issuedUrlLink.textContent);
+        showToast("短縮URLをコピーしました");
+      });
+
+      downloadQrBtn.addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = `qr-${lastIssuedSlug || "link"}.png`;
+        link.href = issuedQrCanvas.toDataURL("image/png");
+        link.click();
+      });
+
+      goAnalyticsBtn.addEventListener("click", () => {
+        if (lastIssuedSlug) {
+          document.getElementById("lookupSlugInput").value = lastIssuedSlug;
+          switchTab("panel-analytics");
+          inspectSlug(lastIssuedSlug);
+        }
+      });
+
+      // =========================================================
+      // Panel 2: Analytics & Management
+      // =========================================================
+      const lookupForm = document.getElementById("lookupForm");
+      const lookupSlugInput = document.getElementById("lookupSlugInput");
+      const lookupBtn = document.getElementById("lookupBtn");
+      const lookupSpinner = document.getElementById("lookupSpinner");
+      const lookupAlert = document.getElementById("lookupAlert");
+
+      const analyticsResultWrap = document.getElementById("analyticsResultWrap");
+      const analyticsTitleId = document.getElementById("analyticsTitleId");
+      const copyAnalyticsUrlBtn = document.getElementById("copyAnalyticsUrlBtn");
+      const refreshAnalyticsBtn = document.getElementById("refreshAnalyticsBtn");
+
+      const statClicks = document.getElementById("statClicks");
+      const statCreated = document.getElementById("statCreated");
+      const statSecurity = document.getElementById("statSecurity");
+      const detailTargetUrl = document.getElementById("detailTargetUrl");
+      const detailMemo = document.getElementById("detailMemo");
+
+      const mgmtZone = document.getElementById("mgmtZone");
+      const mgmtLockBadge = document.getElementById("mgmtLockBadge");
+      const setupSecurityArea = document.getElementById("setupSecurityArea");
+      const authUnlockArea = document.getElementById("authUnlockArea");
+      const unlockedActionsArea = document.getElementById("unlockedActionsArea");
+
+      const setupNewPassword = document.getElementById("setupNewPassword");
+      const saveInitialPwBtn = document.getElementById("saveInitialPwBtn");
+      const saveInitialPasskeyBtn = document.getElementById("saveInitialPasskeyBtn");
+
+      const pwAuthBox = document.getElementById("pwAuthBox");
+      const unlockPasswordInput = document.getElementById("unlockPasswordInput");
+      const unlockWithPwBtn = document.getElementById("unlockWithPwBtn");
+      const pkAuthBox = document.getElementById("pkAuthBox");
+      const unlockWithPasskeyBtn = document.getElementById("unlockWithPasskeyBtn");
+
+      const regenIdBtn = document.getElementById("regenIdBtn");
+      const addPasskeyAfterUnlockBtn = document.getElementById("addPasskeyAfterUnlockBtn");
+      const deleteLinkBtn = document.getElementById("deleteLinkBtn");
+      const mgmtAlert = document.getElementById("mgmtAlert");
+
+      let currentItem = null;
+      let unlockedAuth = null; // { authType: "password"|"passkey", password?: string, passkeyId?: string }
+
+      function renderAnalyticsState() {
+        if (!currentItem) {
+          analyticsResultWrap.style.display = "none";
           return;
         }
 
-        const delBtn = e.target.closest(".del-row-btn");
-        if (delBtn) {
-          const slug = delBtn.dataset.slug;
-          if (!confirm(`短縮URL「/${slug}」を削除しますか？`)) return;
+        analyticsResultWrap.style.display = "block";
+        analyticsTitleId.textContent = `/${currentItem.slug}`;
+        statClicks.textContent = Number(currentItem.clicks || 0).toLocaleString();
+        statCreated.textContent = currentItem.created_at || "—";
 
-          delBtn.disabled = true;
+        const secLabels = [];
+        if (currentItem.hasPassword) secLabels.push("PW");
+        if (currentItem.hasPasskey) secLabels.push("パスキー");
+        statSecurity.textContent = secLabels.length > 0 ? secLabels.join(" + ") : "未設定";
 
-          try {
-            const res = await fetch(GAS_WEB_APP_URL, {
-              method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({ action: "delete", slug: slug })
-            });
-            const data = await res.json();
-            if (data.ok) {
-              fetchLinks();
-            } else {
-              alert("削除エラー: " + data.error);
-            }
-          } catch (err) {
-            alert("通信エラー: " + err.message);
-          } finally {
-            delBtn.disabled = false;
+        detailTargetUrl.href = currentItem.url;
+        detailTargetUrl.textContent = currentItem.url;
+        detailMemo.textContent = currentItem.memo || "—";
+
+        const isProtected = currentItem.hasPassword || currentItem.hasPasskey;
+
+        setupSecurityArea.style.display = "none";
+        authUnlockArea.style.display = "none";
+        unlockedActionsArea.style.display = "none";
+
+        if (!isProtected) {
+          // パスワード未設定状態：先に設定を促す
+          mgmtZone.classList.remove("unlocked");
+          mgmtLockBadge.textContent = "保護未設定";
+          setupSecurityArea.style.display = "block";
+        } else if (!unlockedAuth) {
+          // 保護済み・未認証状態
+          mgmtZone.classList.remove("unlocked");
+          mgmtLockBadge.textContent = "ロック中";
+          authUnlockArea.style.display = "block";
+          pwAuthBox.style.display = currentItem.hasPassword ? "block" : "none";
+          pkAuthBox.style.display = currentItem.hasPasskey ? "block" : "none";
+        } else {
+          // 認証済み状態：IDランダム変更 & 削除を許可
+          mgmtZone.classList.add("unlocked");
+          mgmtLockBadge.textContent = "認証済み（ロック解除）";
+          unlockedActionsArea.style.display = "block";
+          addPasskeyAfterUnlockBtn.style.display = currentItem.hasPasskey ? "none" : "inline-flex";
+        }
+      }
+
+      async function inspectSlug(slug) {
+        const cleanSlug = slug.replace(/^\/+|\/+$/g, "").trim();
+        if (!cleanSlug) return;
+
+        clearAlert(lookupAlert);
+        clearAlert(mgmtAlert);
+        lookupBtn.disabled = true;
+        lookupSpinner.style.display = "inline-block";
+
+        try {
+          const res = await fetch(`${GAS_WEB_APP_URL}?action=inspect&slug=${encodeURIComponent(cleanSlug)}`);
+          const data = await res.json();
+
+          if (!data.ok) {
+            currentItem = null;
+            unlockedAuth = null;
+            renderAnalyticsState();
+            showAlert(lookupAlert, "error", data.error || "IDが見つかりませんでした");
+            return;
           }
+
+          if (!currentItem || currentItem.slug !== data.item.slug) {
+            unlockedAuth = null;
+            unlockPasswordInput.value = "";
+          }
+          currentItem = data.item;
+          renderAnalyticsState();
+        } catch (err) {
+          showAlert(lookupAlert, "error", "通信エラーが発生しました: " + err.message);
+        } finally {
+          lookupBtn.disabled = false;
+          lookupSpinner.style.display = "none";
+        }
+      }
+
+      lookupForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        inspectSlug(lookupSlugInput.value);
+      });
+
+      refreshAnalyticsBtn.addEventListener("click", () => {
+        if (currentItem) {
+          inspectSlug(currentItem.slug);
+          showToast("最新のアクセス数を取得しました");
         }
       });
 
-      copyResultBtn.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(shortLinkOut.textContent);
-        const orig = copyResultBtn.textContent;
-        copyResultBtn.textContent = "コピー完了！";
-        setTimeout(() => (copyResultBtn.textContent = orig), 1500);
+      copyAnalyticsUrlBtn.addEventListener("click", async () => {
+        if (!currentItem) return;
+        await navigator.clipboard.writeText(`${baseDisplayOrigin}/${currentItem.slug}`);
+        showToast("短縮URLをコピーしました");
       });
 
-      refreshListBtn.addEventListener("click", fetchLinks);
+      // 未設定リンクに初期パスワードを設定
+      saveInitialPwBtn.addEventListener("click", async () => {
+        if (!currentItem) return;
+        clearAlert(mgmtAlert);
+        const pw = setupNewPassword.value.trim();
+        if (pw.length < 4) {
+          showAlert(mgmtAlert, "error", "パスワードは4文字以上で入力してください。");
+          return;
+        }
 
-      // 初回読み込み
-      fetchLinks();
+        saveInitialPwBtn.disabled = true;
+        try {
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "set_security",
+              slug: currentItem.slug,
+              newPassword: pw
+            })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            showAlert(mgmtAlert, "error", data.error || "設定に失敗しました");
+            return;
+          }
+          currentItem = data.item;
+          unlockedAuth = { authType: "password", password: pw };
+          setupNewPassword.value = "";
+          renderAnalyticsState();
+          showAlert(mgmtAlert, "success", "パスワードを設定し、管理ロックを解除しました。");
+        } catch (err) {
+          showAlert(mgmtAlert, "error", "通信エラー: " + err.message);
+        } finally {
+          saveInitialPwBtn.disabled = false;
+        }
+      });
+
+      // 未設定リンクに初期パスキー（＋任意パスワード）を設定
+      saveInitialPasskeyBtn.addEventListener("click", async () => {
+        if (!currentItem) return;
+        clearAlert(mgmtAlert);
+        const pw = setupNewPassword.value.trim();
+        if (pw && pw.length < 4) {
+          showAlert(mgmtAlert, "error", "パスワードも同時に設定する場合は4文字以上にしてください。");
+          return;
+        }
+
+        saveInitialPasskeyBtn.disabled = true;
+        try {
+          const pk = await createBrowserPasskey(currentItem.slug);
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "set_security",
+              slug: currentItem.slug,
+              newPassword: pw,
+              newPasskeyId: pk.passkeyId,
+              newPasskeyPub: pk.passkeyPub
+            })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            showAlert(mgmtAlert, "error", data.error || "パスキー登録に失敗しました");
+            return;
+          }
+          currentItem = data.item;
+          unlockedAuth = { authType: "passkey", passkeyId: pk.passkeyId };
+          setupNewPassword.value = "";
+          renderAnalyticsState();
+          showAlert(mgmtAlert, "success", "パスキーを登録し、管理ロックを解除しました。");
+        } catch (err) {
+          showAlert(mgmtAlert, "warn", "パスキー登録エラー: " + err.message);
+        } finally {
+          saveInitialPasskeyBtn.disabled = false;
+        }
+      });
+
+      // パスワードでロック解除
+      unlockWithPwBtn.addEventListener("click", () => {
+        if (!currentItem) return;
+        clearAlert(mgmtAlert);
+        const pw = unlockPasswordInput.value.trim();
+        if (!pw) {
+          showAlert(mgmtAlert, "error", "パスワードを入力してください。");
+          return;
+        }
+        unlockedAuth = { authType: "password", password: pw };
+        renderAnalyticsState();
+        showAlert(mgmtAlert, "success", "ロックを解除しました（実行時にサーバー側でパスワードを検証します）。");
+      });
+
+      // パスキーでロック解除
+      unlockWithPasskeyBtn.addEventListener("click", async () => {
+        if (!currentItem || !currentItem.passkeyId) return;
+        clearAlert(mgmtAlert);
+        unlockWithPasskeyBtn.disabled = true;
+        try {
+          await getBrowserPasskeyAssertion(currentItem.passkeyId);
+          unlockedAuth = { authType: "passkey", passkeyId: currentItem.passkeyId };
+          renderAnalyticsState();
+          showAlert(mgmtAlert, "success", "パスキー認証に成功しました。");
+        } catch (err) {
+          showAlert(mgmtAlert, "error", "パスキー認証に失敗しました: " + err.message);
+        } finally {
+          unlockWithPasskeyBtn.disabled = false;
+        }
+      });
+
+      // 認証Payload構築ヘルパー
+      async function buildAuthPayload() {
+        if (!unlockedAuth) throw new Error("認証が必要です");
+        if (unlockedAuth.authType === "passkey") {
+          const assertion = await getBrowserPasskeyAssertion(unlockedAuth.passkeyId);
+          return { authType: "passkey", assertion: assertion };
+        }
+        return { authType: "password", password: unlockedAuth.password };
+      }
+
+      // ロック解除後にパスキーを追加登録
+      addPasskeyAfterUnlockBtn.addEventListener("click", async () => {
+        if (!currentItem || !unlockedAuth) return;
+        clearAlert(mgmtAlert);
+        addPasskeyAfterUnlockBtn.disabled = true;
+        try {
+          const authPayload = await buildAuthPayload();
+          const pk = await createBrowserPasskey(currentItem.slug);
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "set_security",
+              slug: currentItem.slug,
+              ...authPayload,
+              newPasskeyId: pk.passkeyId,
+              newPasskeyPub: pk.passkeyPub
+            })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            if (unlockedAuth.authType === "password") unlockedAuth = null;
+            renderAnalyticsState();
+            showAlert(mgmtAlert, "error", data.error || "パスキー追加に失敗しました");
+            return;
+          }
+          currentItem = data.item;
+          renderAnalyticsState();
+          showAlert(mgmtAlert, "success", "このリンクにパスキーを追加登録しました。");
+        } catch (err) {
+          showAlert(mgmtAlert, "warn", "パスキー追加エラー: " + err.message);
+        } finally {
+          addPasskeyAfterUnlockBtn.disabled = false;
+        }
+      });
+
+      // IDのランダム変更（6文字・指定不可）
+      regenIdBtn.addEventListener("click", async () => {
+        if (!currentItem || !unlockedAuth) return;
+        if (!confirm(`現在のID「/${currentItem.slug}」を新しいランダム6文字IDに変更しますか？\n※旧URLは無効になり、新しいIDの任意指定はできません。`)) {
+          return;
+        }
+
+        clearAlert(mgmtAlert);
+        regenIdBtn.disabled = true;
+
+        try {
+          const authPayload = await buildAuthPayload();
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "regenerate_id",
+              slug: currentItem.slug,
+              ...authPayload
+            })
+          });
+          const data = await res.json();
+
+          if (!data.ok) {
+            if (unlockedAuth.authType === "password") unlockedAuth = null;
+            renderAnalyticsState();
+            showAlert(mgmtAlert, "error", data.error || "ID変更に失敗しました");
+            return;
+          }
+
+          currentItem = data.item;
+          lookupSlugInput.value = data.newSlug;
+          renderAnalyticsState();
+          showAlert(
+            mgmtAlert,
+            "success",
+            `IDを変更しました：/${data.oldSlug} → /${data.newSlug}（新しいURL: ${baseDisplayOrigin}/${data.newSlug}）`
+          );
+          showToast(`新しいID /${data.newSlug} に変更しました`);
+        } catch (err) {
+          showAlert(mgmtAlert, "error", "ID変更エラー: " + err.message);
+        } finally {
+          regenIdBtn.disabled = false;
+        }
+      });
+
+      // リンク削除
+      deleteLinkBtn.addEventListener("click", async () => {
+        if (!currentItem || !unlockedAuth) return;
+        if (!confirm(`短縮URL「/${currentItem.slug}」を完全に削除しますか？\nこの操作は取り消せません。`)) {
+          return;
+        }
+
+        clearAlert(mgmtAlert);
+        deleteLinkBtn.disabled = true;
+
+        try {
+          const authPayload = await buildAuthPayload();
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              action: "delete",
+              slug: currentItem.slug,
+              ...authPayload
+            })
+          });
+          const data = await res.json();
+
+          if (!data.ok) {
+            if (unlockedAuth.authType === "password") unlockedAuth = null;
+            renderAnalyticsState();
+            showAlert(mgmtAlert, "error", data.error || "削除に失敗しました");
+            return;
+          }
+
+          const deletedSlug = currentItem.slug;
+          currentItem = null;
+          unlockedAuth = null;
+          lookupSlugInput.value = "";
+          renderAnalyticsState();
+          showAlert(lookupAlert, "success", `短縮URL「/${deletedSlug}」を削除しました。`);
+          showToast("リンクを削除しました");
+        } catch (err) {
+          showAlert(mgmtAlert, "error", "削除エラー: " + err.message);
+        } finally {
+          deleteLinkBtn.disabled = false;
+        }
+      });
     })();
   </script>
 </body>
