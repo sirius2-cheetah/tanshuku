@@ -1597,10 +1597,30 @@
               QRコードは外部サービスにURLを送らずブラウザ内で直接描画します。また、作成したURLの履歴はお使いの端末のローカルストレージにのみ保存されます（パスワードは保存されません）。
             </p>
           </div>
+
+          <div class="guide-item">
+            <div class="guide-item-title">
+              <span class="guide-item-num">5</span>
+              自動削除・保持期間ルール（3段階）
+            </div>
+            <p>
+              不要な放置リンクやBOT生成を防ぐため、条件に応じて自動削除されます。<strong>未アクセス（0クリック・保護なし）は5日</strong>、<strong>1〜5クリック（保護なし）は最終アクセスから30日</strong>、<strong>保護設定あり または 6クリック以上は最終アクセスから365日</strong>保持されます。
+            </p>
+          </div>
+
+          <div class="guide-item">
+            <div class="guide-item-title">
+              <span class="guide-item-num">6</span>
+              サーバー側認証ガード
+            </div>
+            <p>
+              パスワードまたはパスキーを設定したリンクは、サーバー側で正しい認証が確認されるまで転送先URL・クリック数・メモなどの詳細データを一切返却しません。
+            </p>
+          </div>
         </div>
 
         <div class="guide-note">
-          ※ セキュリティ保護（パスワード・パスキー）を未設定のまま発行したリンクでも、後から「アクセス解析 ＆ 管理」タブでIDを照会すればいつでも保護設定を追加できます。
+          ※ 保護なしのリンクは未アクセス（0クリック）のままだと<strong>作成から5日</strong>で自動削除されます。作成したリンクは一度アクセス確認を行うか、パスワード・パスキーを設定（<strong>365日保持</strong>に自動延長）しておくことをおすすめします。後から「アクセス解析 ＆ 管理」タブで保護設定を追加することも可能です。
         </div>
       </div>
     </section>
@@ -1684,18 +1704,20 @@
               <button type="button" class="btn-in-field" id="toggleViewPwBtn">表示</button>
             </div>
             <button type="button" class="btn-primary" id="unlockViewWithPwBtn" style="width: auto; padding: 12px 22px;">
-              認証して解析を表示
+              <span class="spinner" id="unlockViewPwSpinner"></span>
+              <span id="unlockViewPwText">認証して解析を表示</span>
             </button>
           </div>
         </div>
 
         <div id="viewPkAuthBox" style="display: none; margin-bottom: 12px;">
           <button type="button" class="btn-passkey" id="unlockViewWithPasskeyBtn" style="width: 100%; justify-content: center; padding: 13px;">
+            <span class="spinner" id="unlockViewPkSpinner"></span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"></path>
               <circle cx="16.5" cy="7.5" r=".5"></circle>
             </svg>
-            パスキー（Windows Hello / 生体認証）で閲覧ロック解除
+            <span id="unlockViewPkText">パスキー（Windows Hello / 生体認証）で閲覧ロック解除</span>
           </button>
         </div>
 
@@ -1715,6 +1737,7 @@
             <h3 class="section-title" id="analyticsTitleId">/------</h3>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button type="button" class="btn-secondary" id="copyAnalyticsUrlBtn">短縮URLコピー</button>
+              <button type="button" class="btn-secondary" id="analyticsQrBtn">QRコード</button>
               <button type="button" class="btn-secondary" id="refreshAnalyticsBtn">最新に更新</button>
               <button type="button" class="btn-secondary" id="lockAnalyticsBtn" style="display: none;">ロックして閉じる</button>
             </div>
@@ -1745,6 +1768,14 @@
             <div class="detail-row">
               <span class="detail-key">メモ</span>
               <span class="detail-val" id="detailMemo">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">最終アクセス日時</span>
+              <span class="detail-val" id="detailLastAccessed">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">自動削除予定（保持ルール）</span>
+              <span class="detail-val" id="detailExpiresAt">—</span>
             </div>
           </div>
 
@@ -1848,6 +1879,26 @@
             </div>
             <p>
               ID変更を実行すると、転送先やクリック数を引き継いだまま新しい6文字ランダムIDへ切り替わります。旧URLは即座に無効になり、変更後のIDは任意指定できません。
+            </p>
+          </div>
+
+          <div class="guide-item">
+            <div class="guide-item-title">
+              <span class="guide-item-num">3</span>
+              アクセスによる有効期限の自動延長
+            </div>
+            <p>
+              短縮URLへのアクセスが発生するたびに最終アクセス日が更新され、自動削除予定日がそこから延長されます（保護リンク／6クリック以上は365日、1〜5クリックは30日）。
+            </p>
+          </div>
+
+          <div class="guide-item">
+            <div class="guide-item-title">
+              <span class="guide-item-num">4</span>
+              保護設定の追加で365日保持に昇格
+            </div>
+            <p>
+              未保護のまま作成したリンク（0クリックなら5日削除）でも、後からパスワードまたはパスキーを設定することで即座に365日保持対象へ切り替わります。
             </p>
           </div>
         </div>
@@ -2748,6 +2799,8 @@
           if (item.hasPassword) tags.push("パスワード保護: ON");
           if (item.hasPasskey) tags.push("パスキー保護: ON");
           if (!item.hasPassword && !item.hasPasskey) tags.push("セキュリティ保護: 未設定");
+          if (item.retention_label) tags.push(`保持ルール: ${item.retention_label}`);
+          if (item.expires_at) tags.push(`削除予定: ${item.expires_at}`);
           issuedMetaTags.innerHTML = tags.map((t) => `<span class="meta-tag">${t}</span>`).join("");
 
           resultCard.classList.add("active");
@@ -2824,8 +2877,12 @@
       const viewPasswordInput = document.getElementById("viewPasswordInput");
       const toggleViewPwBtn = document.getElementById("toggleViewPwBtn");
       const unlockViewWithPwBtn = document.getElementById("unlockViewWithPwBtn");
+      const unlockViewPwSpinner = document.getElementById("unlockViewPwSpinner");
+      const unlockViewPwText = document.getElementById("unlockViewPwText");
       const viewPkAuthBox = document.getElementById("viewPkAuthBox");
       const unlockViewWithPasskeyBtn = document.getElementById("unlockViewWithPasskeyBtn");
+      const unlockViewPkSpinner = document.getElementById("unlockViewPkSpinner");
+      const unlockViewPkText = document.getElementById("unlockViewPkText");
       const cancelViewAuthBtn = document.getElementById("cancelViewAuthBtn");
       const viewAuthAlert = document.getElementById("viewAuthAlert");
 
@@ -2833,6 +2890,7 @@
       const analyticsResultWrap = document.getElementById("analyticsResultWrap");
       const analyticsTitleId = document.getElementById("analyticsTitleId");
       const copyAnalyticsUrlBtn = document.getElementById("copyAnalyticsUrlBtn");
+      const analyticsQrBtn = document.getElementById("analyticsQrBtn");
       const refreshAnalyticsBtn = document.getElementById("refreshAnalyticsBtn");
       const lockAnalyticsBtn = document.getElementById("lockAnalyticsBtn");
 
@@ -2841,6 +2899,8 @@
       const statSecurity = document.getElementById("statSecurity");
       const detailTargetUrl = document.getElementById("detailTargetUrl");
       const detailMemo = document.getElementById("detailMemo");
+      const detailLastAccessed = document.getElementById("detailLastAccessed");
+      const detailExpiresAt = document.getElementById("detailExpiresAt");
 
       const mgmtZone = document.getElementById("mgmtZone");
       const mgmtLockBadge = document.getElementById("mgmtLockBadge");
@@ -2884,6 +2944,7 @@
 
       let currentItem = null;
       let isViewUnlocked = false;
+      let sessionViewAuth = null; // メモリ内のみ一時保持（最新更新用・ロック時に即破棄）
       let pendingReauthAction = null;
       let isReauthSubmitting = false;
 
@@ -2926,9 +2987,13 @@
         if (currentItem.hasPasskey) secLabels.push("パスキー");
         statSecurity.textContent = secLabels.length > 0 ? secLabels.join(" + ") : "未設定";
 
-        detailTargetUrl.href = currentItem.url;
-        detailTargetUrl.textContent = currentItem.url;
+        detailTargetUrl.href = currentItem.url || "#";
+        detailTargetUrl.textContent = currentItem.url || "—";
         detailMemo.textContent = currentItem.memo || "—";
+        detailLastAccessed.textContent = currentItem.last_accessed || "未アクセス（0クリック）";
+        detailExpiresAt.textContent = currentItem.expires_at
+          ? `${currentItem.expires_at} まで（${currentItem.retention_label || ""}）`
+          : "—";
 
         lockAnalyticsBtn.style.display = protectedFlag ? "inline-flex" : "none";
         setupSecurityArea.style.display = "none";
@@ -2948,6 +3013,19 @@
         }
       }
 
+      async function fetchProtectedInspect(slug, authPayload) {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "inspect",
+            slug: slug,
+            ...authPayload
+          })
+        });
+        return await res.json();
+      }
+
       async function inspectSlug(slug, preserveUnlock) {
         const cleanSlug = slug.replace(/^\/+|\/+$/g, "").trim();
         if (!cleanSlug) return;
@@ -2959,32 +3037,50 @@
         lookupSpinner.style.display = "inline-block";
 
         try {
+          // 既に同一IDでパスワード閲覧解除済みならサーバーへ認証付きで最新データを再照会
+          if (
+            preserveUnlock &&
+            sessionViewAuth &&
+            sessionViewAuth.slug === cleanSlug &&
+            sessionViewAuth.authType === "password"
+          ) {
+            const authData = await fetchProtectedInspect(cleanSlug, sessionViewAuth);
+            if (authData.ok && !authData.locked) {
+              currentItem = authData.item;
+              isViewUnlocked = true;
+              renderAnalyticsState();
+              return true;
+            }
+          }
+
           const res = await fetch(`${GAS_WEB_APP_URL}?action=inspect&slug=${encodeURIComponent(cleanSlug)}`);
           const data = await res.json();
 
           if (!data.ok) {
             currentItem = null;
             isViewUnlocked = false;
+            sessionViewAuth = null;
             renderAnalyticsState();
             showAlert(lookupAlert, "error", data.error || "IDが見つかりませんでした");
-            return;
+            return false;
           }
 
-          const sameSlug = currentItem && currentItem.slug === data.item.slug;
-          if (!preserveUnlock || !sameSlug) {
-            isViewUnlocked = false;
-            viewPasswordInput.value = "";
-            viewPasswordInput.type = "password";
-            toggleViewPwBtn.textContent = "表示";
-          }
+          sessionViewAuth = null;
+          viewPasswordInput.value = "";
+          viewPasswordInput.type = "password";
+          toggleViewPwBtn.textContent = "表示";
 
           currentItem = data.item;
-          if (!isItemProtected(currentItem)) {
+          if (data.locked) {
+            isViewUnlocked = false;
+          } else {
             isViewUnlocked = true;
           }
           renderAnalyticsState();
+          return true;
         } catch (err) {
           showAlert(lookupAlert, "error", "通信エラーが発生しました: " + err.message);
+          return false;
         } finally {
           lookupBtn.disabled = false;
           lookupSpinner.style.display = "none";
@@ -2996,7 +3092,7 @@
         inspectSlug(lookupSlugInput.value, false);
       });
 
-      function handleViewPasswordUnlock() {
+      async function handleViewPasswordUnlock() {
         if (!currentItem) return;
         clearAlert(viewAuthAlert);
         const pw = viewPasswordInput.value.trim();
@@ -3004,12 +3100,41 @@
           showAlert(viewAuthAlert, "error", "管理パスワードを入力してください。");
           return;
         }
-        viewPasswordInput.value = "";
-        viewPasswordInput.type = "password";
-        toggleViewPwBtn.textContent = "表示";
-        isViewUnlocked = true;
-        renderAnalyticsState();
-        showToast("閲覧ロックを解除しました");
+
+        unlockViewWithPwBtn.disabled = true;
+        unlockViewPwSpinner.style.display = "inline-block";
+        unlockViewPwText.textContent = "サーバー認証中...";
+
+        try {
+          const data = await fetchProtectedInspect(currentItem.slug, {
+            authType: "password",
+            password: pw
+          });
+
+          if (!data.ok || data.locked) {
+            showAlert(viewAuthAlert, "error", data.error || "パスワードが正しくありません。");
+            return;
+          }
+
+          viewPasswordInput.value = "";
+          viewPasswordInput.type = "password";
+          toggleViewPwBtn.textContent = "表示";
+          currentItem = data.item;
+          isViewUnlocked = true;
+          sessionViewAuth = {
+            slug: currentItem.slug,
+            authType: "password",
+            password: pw
+          };
+          renderAnalyticsState();
+          showToast("閲覧ロックを解除しました");
+        } catch (err) {
+          showAlert(viewAuthAlert, "error", "認証通信エラー: " + err.message);
+        } finally {
+          unlockViewWithPwBtn.disabled = false;
+          unlockViewPwSpinner.style.display = "none";
+          unlockViewPwText.textContent = "認証して解析を表示";
+        }
       }
 
       unlockViewWithPwBtn.addEventListener("click", handleViewPasswordUnlock);
@@ -3024,21 +3149,39 @@
         if (!currentItem || !currentItem.passkeyId) return;
         clearAlert(viewAuthAlert);
         unlockViewWithPasskeyBtn.disabled = true;
+        unlockViewPkSpinner.style.display = "inline-block";
+        unlockViewPkText.textContent = "パスキー検証中...";
+
         try {
-          await getBrowserPasskeyAssertion(currentItem.passkeyId);
+          const assertion = await getBrowserPasskeyAssertion(currentItem.passkeyId);
+          const data = await fetchProtectedInspect(currentItem.slug, {
+            authType: "passkey",
+            assertion: assertion
+          });
+
+          if (!data.ok || data.locked) {
+            showAlert(viewAuthAlert, "error", data.error || "パスキー認証に失敗しました。");
+            return;
+          }
+
+          currentItem = data.item;
           isViewUnlocked = true;
+          sessionViewAuth = null;
           renderAnalyticsState();
           showToast("パスキー認証に成功しました");
         } catch (err) {
           showAlert(viewAuthAlert, "error", "パスキー認証に失敗しました: " + err.message);
         } finally {
           unlockViewWithPasskeyBtn.disabled = false;
+          unlockViewPkSpinner.style.display = "none";
+          unlockViewPkText.textContent = "パスキー（Windows Hello / 生体認証）で閲覧ロック解除";
         }
       });
 
       cancelViewAuthBtn.addEventListener("click", () => {
         currentItem = null;
         isViewUnlocked = false;
+        sessionViewAuth = null;
         viewPasswordInput.value = "";
         clearAlert(viewAuthAlert);
         renderAnalyticsState();
@@ -3046,7 +3189,15 @@
 
       lockAnalyticsBtn.addEventListener("click", () => {
         if (!currentItem) return;
+        // メモリ上の機密データ（転送先URL・メモ等）も破棄してロック状態に戻す
+        currentItem = {
+          slug: currentItem.slug,
+          hasPassword: currentItem.hasPassword,
+          hasPasskey: currentItem.hasPasskey,
+          passkeyId: currentItem.passkeyId || ""
+        };
         isViewUnlocked = false;
+        sessionViewAuth = null;
         viewPasswordInput.value = "";
         clearAlert(viewAuthAlert);
         clearAlert(mgmtAlert);
@@ -3054,9 +3205,31 @@
         showToast("アクセス解析をロックしました");
       });
 
-      refreshAnalyticsBtn.addEventListener("click", () => {
-        if (currentItem) {
-          inspectSlug(currentItem.slug, true);
+      refreshAnalyticsBtn.addEventListener("click", async () => {
+        if (!currentItem) return;
+        // パスキーのみで保護されているリンクは再認証で最新データを取得
+        if (isItemProtected(currentItem) && !sessionViewAuth && currentItem.hasPasskey) {
+          try {
+            const assertion = await getBrowserPasskeyAssertion(currentItem.passkeyId);
+            const data = await fetchProtectedInspect(currentItem.slug, {
+              authType: "passkey",
+              assertion: assertion
+            });
+            if (data.ok && !data.locked) {
+              currentItem = data.item;
+              renderAnalyticsState();
+              showToast("最新のアクセス数を取得しました");
+            } else {
+              showAlert(mgmtAlert, "error", data.error || "再認証に失敗しました");
+            }
+          } catch (err) {
+            showAlert(mgmtAlert, "warn", "更新用のパスキー認証がキャンセルされました: " + err.message);
+          }
+          return;
+        }
+
+        const ok = await inspectSlug(currentItem.slug, true);
+        if (ok) {
           showToast("最新のアクセス数を取得しました");
         }
       });
@@ -3065,6 +3238,11 @@
         if (!currentItem) return;
         await navigator.clipboard.writeText(`${baseDisplayOrigin}/${currentItem.slug}`);
         showToast("短縮URLをコピーしました");
+      });
+
+      analyticsQrBtn.addEventListener("click", () => {
+        if (!currentItem) return;
+        openHistoryQrModal(currentItem.slug, `${baseDisplayOrigin}/${currentItem.slug}`);
       });
 
       saveInitialPwBtn.addEventListener("click", async () => {
@@ -3094,12 +3272,17 @@
           }
           currentItem = data.item;
           isViewUnlocked = true;
+          sessionViewAuth = {
+            slug: currentItem.slug,
+            authType: "password",
+            password: pw
+          };
           setupNewPassword.value = "";
           setupNewPassword.type = "password";
           toggleSetupPwBtn.textContent = "表示";
           updateLocalHistorySlug(currentItem.slug, currentItem);
           renderAnalyticsState();
-          showAlert(mgmtAlert, "success", "パスワードを設定しました。次回以降、解析閲覧時と重要操作時に認証が求められます。");
+          showAlert(mgmtAlert, "success", "パスワードを設定しました。保持期限も365日に自動延長され、次回以降は解析閲覧時と重要操作時に認証が求められます。");
         } catch (err) {
           showAlert(mgmtAlert, "error", "通信エラー: " + err.message);
         } finally {
@@ -3142,7 +3325,7 @@
           toggleSetupPwBtn.textContent = "表示";
           updateLocalHistorySlug(currentItem.slug, currentItem);
           renderAnalyticsState();
-          showAlert(mgmtAlert, "success", "パスキーを登録しました。次回以降、解析閲覧時と重要操作時に認証が求められます。");
+          showAlert(mgmtAlert, "success", "パスキーを登録しました。保持期限も365日に自動延長され、次回以降は解析閲覧時と重要操作時に認証が求められます。");
         } catch (err) {
           showAlert(mgmtAlert, "warn", "パスキー登録エラー: " + err.message);
         } finally {
@@ -3256,6 +3439,9 @@
               return;
             }
             currentItem = data.item;
+            if (sessionViewAuth && sessionViewAuth.slug === data.oldSlug) {
+              sessionViewAuth.slug = data.newSlug;
+            }
             lookupSlugInput.value = data.newSlug;
             updateLocalHistorySlug(data.oldSlug, data.item);
             setReauthLoading(false);
@@ -3286,6 +3472,7 @@
             removeLocalHistorySlug(deletedSlug);
             currentItem = null;
             isViewUnlocked = false;
+            sessionViewAuth = null;
             lookupSlugInput.value = "";
             setReauthLoading(false);
             closeReauthModal();
