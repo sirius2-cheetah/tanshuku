@@ -1,276 +1,779 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sirius Shortener</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --bg-color: #f5f7fa;
-            --card-bg: #ffffff;
-            --text-color: #333;
-            --accent-bg: #eef2f7;
-        }
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .container {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary-color); margin-top: 0; }
-        
-        /* 💡 ペイウォールとアプリ本体の切り替え用 */
-        #app-content { display: none; }
-        #paywall-content { display: block; }
-        
-        /* ペイウォールの装飾 */
-        .paywall-info-box {
-            background-color: var(--accent-bg);
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 1.5rem 0;
-            text-align: left;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-        .pay-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-        .pay-btn:hover { opacity: 0.9; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>.click Link Shortener — 短縮URLジェネレーター</title>
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-card: rgba(17, 24, 39, 0.78);
+      --bg-input: rgba(15, 23, 42, 0.92);
+      --border: rgba(148, 163, 184, 0.16);
+      --border-focus: #38bdf8;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #0ea5e9;
+      --accent-2: #6366f1;
+      --accent-glow: rgba(14, 165, 233, 0.35);
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --red: #f43f5e;
+      --red-bg: rgba(244, 63, 94, 0.14);
+      --radius-lg: 18px;
+      --radius-md: 11px;
+      --radius-sm: 7px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
 
-        /* ツール本体の装飾 */
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        button.action-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: opacity 0.2s;
-        }
-        button.action-btn:hover { opacity: 0.9; }
-        
-        #result {
-            margin-top: 1.5rem;
-            padding: 1.5rem 1rem;
-            background: var(--accent-bg);
-            border-radius: 8px;
-            display: none;
-            border: 1px solid #ddd;
-        }
-        #result p { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666; }
-        
-        #shortUrl {
-            display: block;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        #qrcode-container {
-            margin: 1rem 0;
-            background: #fff;
-            padding: 12px;
-            display: inline-block;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        #qrcode-img {
-            display: block;
-            width: 150px;
-            height: 150px;
-        }
-        
-        .action-btns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 1rem;
-        }
-        .copy-btn {
-            background: #555;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            padding: 10px;
-            cursor: pointer;
-        }
-        .copy-btn:hover { opacity: 0.9; }
-    </style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 15% 12%, rgba(14, 165, 233, 0.16), transparent 36%),
+        radial-gradient(circle at 85% 88%, rgba(99, 102, 241, 0.15), transparent 40%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(14px);
+      margin-bottom: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .domain-pill {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: #7dd3fc;
+    }
+
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+      margin-bottom: 24px;
+    }
+
+    .card:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Form */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 680px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="url"] {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    }
+
+    .slug-input-wrap {
+      display: flex;
+      align-items: stretch;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .slug-input-wrap:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    }
+
+    .slug-prefix {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      background: rgba(30, 41, 59, 0.65);
+      color: var(--text-sub);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .slug-input-wrap input {
+      border: none;
+      border-radius: 0;
+      box-shadow: none !important;
+      background: transparent;
+      font-family: var(--font-mono);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px var(--accent-glow);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-main);
+      border-color: var(--text-sub);
+    }
+
+    .btn-danger:hover {
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.5);
+      background: var(--red-bg);
+    }
+
+    /* Result Box */
+    .result-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: var(--green-bg);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      display: none;
+    }
+
+    .result-box.active {
+      display: block;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .short-link-display {
+      font-family: var(--font-mono);
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #6ee7b7;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .short-link-display:hover {
+      text-decoration: underline;
+    }
+
+    .qr-wrap {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(16, 185, 129, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qr-wrap img {
+      width: 84px;
+      height: 84px;
+      border-radius: 8px;
+      background: #fff;
+      padding: 4px;
+    }
+
+    /* Alert */
+    .alert {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      display: none;
+    }
+
+    .alert.error {
+      display: block;
+      background: var(--red-bg);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fecdd3;
+    }
+
+    /* Table / List */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      color: var(--text-sub);
+      font-weight: 500;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.09);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(30, 41, 59, 0.35);
+    }
+
+    .td-slug {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #7dd3fc;
+      white-space: nowrap;
+    }
+
+    .td-url {
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-sub);
+    }
+
+    .click-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.16);
+      color: #c7d2fe;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        
-        <div id="paywall-content">
-            <h1>Sirius Shortener<br><span style="font-size: 1rem; color: #666;">PRO Access</span></h1>
-            <p style="color: #555; font-size: 0.95rem;">高機能URL短縮ツールの利用には、アクセス権の購入が必要です。</p>
-            
-            <div class="paywall-info-box">
-                <strong>【ツール仕様】</strong><br>
-                ・販売者: SIRIUSII<br>
-                ・価格: 50 コイン (Chat Time Pay)<br>
-                ・無期限アクセス (ブラウザに記憶されます)
-            </div>
-            
-            <button class="pay-btn" onclick="openPayment()">50 Coin でアクセス権を購入</button>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>
+            Link Shortener
+            <span class="domain-pill" id="hostBadge">loading...</span>
+          </h1>
+          <p>長いURLをシンプルで共有しやすい短縮リンクに即座に変換</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-ghost" id="refreshListBtn">一覧を更新</button>
+      </div>
+    </header>
+
+    <!-- Create Link Card -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">新しい短縮URLを作成</h2>
+        <span class="hint">HTTPS / HTTP</span>
+      </div>
+
+      <form id="createForm">
+        <div class="form-group">
+          <label for="targetUrl">
+            リダイレクト先 URL（必須）
+            <span class="hint">元の長いURL</span>
+          </label>
+          <input
+            type="url"
+            id="targetUrl"
+            placeholder="https://example.com/very/long/url/path..."
+            required
+          />
         </div>
 
-        <div id="app-content">
-            <h1>URL Shortener</h1>
-            <input type="url" id="urlInput" placeholder="https://example.com" required>
-            <button class="action-btn" id="generateBtn" onclick="shortenURL()">短縮URLを生成</button>
-            
-            <div id="result">
-                <p>生成されたURL:</p>
-                <strong id="shortUrl"></strong>
-                
-                <div id="qrcode-container">
-                    <img id="qrcode-img" src="" alt="QRコード">
-                </div>
-                
-                <div class="action-btns">
-                    <button class="copy-btn" onclick="copyURL()">URLをコピー</button>
-                    <button class="copy-btn" style="background:#666;" onclick="downloadQR()">QRを保存</button>
-                </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customSlug">
+              カスタムスラッグ（任意）
+              <span class="hint">空欄なら5桁自動生成</span>
+            </label>
+            <div class="slug-input-wrap">
+              <span class="slug-prefix" id="domainPrefix">https://example.click/</span>
+              <input
+                type="text"
+                id="customSlug"
+                placeholder="my-link"
+                pattern="[a-zA-Z0-9_-]{1,40}"
+              />
             </div>
+          </div>
+
+          <div class="form-group">
+            <label for="memoInput">
+              メモ・タイトル（任意）
+              <span class="hint">ラベル表示用</span>
+            </label>
+            <input
+              type="text"
+              id="memoInput"
+              placeholder="例: SNSプロフィール用 / 資料リンク"
+            />
+          </div>
         </div>
 
-    </div>
+        <button type="submit" class="btn-primary" id="createBtn">
+          <span class="spinner" id="createSpinner"></span>
+          <span id="createBtnText">短縮URLを発行する</span>
+        </button>
+      </form>
 
-    <script>
-        // ======= 決済・アクセス制御ロジック (リダイレクト方式) =======
-        const UNLOCK_KEY = 'sirius_shortener_unlocked';
-        const DEPLOY_ID = 'AKfycbx5bammAxf5RJBGpzox1c6N5tkcx0eW5OuARHUNDO0n1EKIQWuu5O0yIrdoM-pUYkVY_Q'; // Chat Time PayのID
+      <div id="createAlert" class="alert"></div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            // URLから決済完了のシグナルを受け取る
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('pay_status') === 'success') {
-                localStorage.setItem(UNLOCK_KEY, 'true');
-                
-                // URLを綺麗にする
-                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.replaceState({path: cleanUrl}, '', cleanUrl);
-                
-                alert("決済が完了しました！\nSirius Shortenerが解放されました。");
-            }
+      <div id="resultBox" class="result-box">
+        <div class="result-row">
+          <a href="#" id="shortLinkOut" class="short-link-display" target="_blank" rel="noopener"></a>
+          <button type="button" class="btn-ghost" id="copyResultBtn">URLをコピー</button>
+        </div>
+        <div class="qr-wrap">
+          <img id="qrImg" src="" alt="QRコード" />
+          <div style="font-size: 0.82rem; color: #a7f3d0;">
+            <strong>短縮URLが発行されました</strong><br />
+            発行したリンクはすぐに共有可能で、アクセス数も自動カウントされます。
+          </div>
+        </div>
+      </div>
+    </section>
 
-            // ストレージを確認して画面を出し分ける
-            if (localStorage.getItem(UNLOCK_KEY) === 'true') {
-                document.getElementById('paywall-content').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-            }
-        });
+    <!-- Links List Card -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">発行済みリンク ＆ クリック統計</h2>
+        <span class="hint" id="totalLinksBadge">読み込み中...</span>
+      </div>
 
-        // 決済画面へジャンプする処理
-        function openPayment() {
-            const currentUrl = window.location.href.split('?')[0];
-            const encodedReturnUrl = encodeURIComponent(currentUrl);
-            const PAY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec?page=payment&shop=SIRIUSII&item=Shortener%20PRO&amount=50&redirect_url=${encodedReturnUrl}`;
-            
-            window.location.href = PAY_URL;
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>短縮URL</th>
+              <th>転送先 URL</th>
+              <th>メモ</th>
+              <th>クリック数</th>
+              <th>作成日時</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="linksTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">
+                データを読み込んでいます...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      // 固定のGASウェブアプリURL（UIには非表示）
+      const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyaiAF5iKZs5fQ9k4TYp2nwEOXyXLWFf3iDf4WxlMvQaQBxlUcLpYBdeL_8cEf14q3R/exec";
+
+      const hostBadge = document.getElementById("hostBadge");
+      const domainPrefix = document.getElementById("domainPrefix");
+
+      const createForm = document.getElementById("createForm");
+      const targetUrlInput = document.getElementById("targetUrl");
+      const customSlugInput = document.getElementById("customSlug");
+      const memoInput = document.getElementById("memoInput");
+      const createBtn = document.getElementById("createBtn");
+      const createSpinner = document.getElementById("createSpinner");
+      const createBtnText = document.getElementById("createBtnText");
+      const createAlert = document.getElementById("createAlert");
+
+      const resultBox = document.getElementById("resultBox");
+      const shortLinkOut = document.getElementById("shortLinkOut");
+      const copyResultBtn = document.getElementById("copyResultBtn");
+      const qrImg = document.getElementById("qrImg");
+
+      const linksTableBody = document.getElementById("linksTableBody");
+      const totalLinksBadge = document.getElementById("totalLinksBadge");
+      const refreshListBtn = document.getElementById("refreshListBtn");
+
+      const baseOrigin = window.location.origin.startsWith("http")
+        ? window.location.origin.replace(/\/+$/, "")
+        : "https://example.click";
+
+      hostBadge.textContent = window.location.hostname || "example.click";
+      domainPrefix.textContent = baseOrigin + "/";
+
+      function showAlert(el, type, msg) {
+        el.className = "alert " + type;
+        el.textContent = msg;
+      }
+
+      function clearAlert(el) {
+        el.className = "alert";
+        el.textContent = "";
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      async function fetchLinks() {
+        try {
+          const url = `${GAS_WEB_APP_URL}?action=list`;
+          const res = await fetch(url);
+          const data = await res.json();
+
+          if (!data.ok) {
+            totalLinksBadge.textContent = "取得エラー";
+            linksTableBody.innerHTML = `
+              <tr>
+                <td colspan="6" style="text-align: center; color: #fda4af; padding: 28px;">
+                  一覧の取得に失敗しました: ${escapeHtml(data.error || "不明なエラー")}
+                </td>
+              </tr>`;
+            return;
+          }
+
+          renderTable(data.items || []);
+        } catch (err) {
+          totalLinksBadge.textContent = "通信エラー";
+          linksTableBody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; color: #fda4af; padding: 28px;">
+                サーバーへの接続に失敗しました。時間をおいて再読み込みしてください。
+              </td>
+            </tr>`;
+        }
+      }
+
+      function renderTable(items) {
+        totalLinksBadge.textContent = `${items.length} 件`;
+        if (items.length === 0) {
+          linksTableBody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 28px;">
+                まだ短縮URLは登録されていません
+              </td>
+            </tr>`;
+          return;
         }
 
-        // ======= URL短縮ツールのメインロジック =======
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxI7z0qCNyP_FmpZCdGl11TSF_Ln9uq1Tb48BgjTZhaA-AEHENj0DElJNi1ml2YxNZG/exec";
-        const CUSTOM_DOMAIN = window.location.origin;
+        linksTableBody.innerHTML = items
+          .map((item) => {
+            const fullShort = `${baseOrigin}/${item.slug}`;
+            return `
+              <tr>
+                <td class="td-slug">
+                  <a href="${escapeHtml(fullShort)}" target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">
+                    /${escapeHtml(item.slug)}
+                  </a>
+                </td>
+                <td class="td-url" title="${escapeHtml(item.url)}">
+                  <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color: inherit;">
+                    ${escapeHtml(item.url)}
+                  </a>
+                </td>
+                <td>${escapeHtml(item.memo || "—")}</td>
+                <td><span class="click-badge">${item.clicks} clicks</span></td>
+                <td style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; white-space: nowrap;">
+                  ${escapeHtml(item.created_at)}
+                </td>
+                <td style="white-space: nowrap;">
+                  <button type="button" class="btn-ghost copy-row-btn" data-url="${escapeHtml(fullShort)}">コピー</button>
+                  <button type="button" class="btn-ghost btn-danger del-row-btn" data-slug="${escapeHtml(item.slug)}">削除</button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
 
-        async function shortenURL() {
-            const urlInput = document.getElementById('urlInput').value;
-            const btn = document.getElementById('generateBtn');
-            if(!urlInput) return alert("URLを入力してください");
+      createForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        clearAlert(createAlert);
 
-            btn.disabled = true;
-            btn.innerText = "生成中...";
+        createBtn.disabled = true;
+        createSpinner.style.display = "inline-block";
+        createBtnText.textContent = "発行中...";
 
-            try {
-                const res = await fetch(GAS_WEBAPP_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ url: urlInput })
-                });
-                const data = await res.json();
+        try {
+          const payload = {
+            action: "create",
+            url: targetUrlInput.value.trim(),
+            slug: customSlugInput.value.trim(),
+            memo: memoInput.value.trim()
+          };
 
-                if(data.success) {
-                    const resultDiv = document.getElementById('result');
-                    const shortUrl = `${CUSTOM_DOMAIN}/go.html?id=${data.id}`;
-                    
-                    const shortUrlEl = document.getElementById('shortUrl');
-                    shortUrlEl.innerText = shortUrl;
-                    shortUrlEl.title = shortUrl;
-                    
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}`;
-                    document.getElementById('qrcode-img').src = qrUrl;
+          const res = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
 
-                    resultDiv.style.display = 'block';
-                }
-            } catch (e) {
-                alert("エラーが発生しました。");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "短縮URLを生成";
-            }
+          const data = await res.json();
+          if (!data.ok) {
+            showAlert(createAlert, "error", data.error || "発行に失敗しました");
+            return;
+          }
+
+          const shortUrl = `${baseOrigin}/${data.item.slug}`;
+          shortLinkOut.href = shortUrl;
+          shortLinkOut.textContent = shortUrl;
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shortUrl)}`;
+          resultBox.classList.add("active");
+
+          targetUrlInput.value = "";
+          customSlugInput.value = "";
+          memoInput.value = "";
+
+          fetchLinks();
+        } catch (err) {
+          showAlert(createAlert, "error", "通信エラーが発生しました: " + err.message);
+        } finally {
+          createBtn.disabled = false;
+          createSpinner.style.display = "none";
+          createBtnText.textContent = "短縮URLを発行する";
+        }
+      });
+
+      linksTableBody.addEventListener("click", async (e) => {
+        const copyBtn = e.target.closest(".copy-row-btn");
+        if (copyBtn) {
+          await navigator.clipboard.writeText(copyBtn.dataset.url);
+          const orig = copyBtn.textContent;
+          copyBtn.textContent = "完了!";
+          setTimeout(() => (copyBtn.textContent = orig), 1200);
+          return;
         }
 
-        function copyURL() {
-            const url = document.getElementById('shortUrl').innerText;
-            navigator.clipboard.writeText(url).then(() => {
-                alert("コピーしました！");
+        const delBtn = e.target.closest(".del-row-btn");
+        if (delBtn) {
+          const slug = delBtn.dataset.slug;
+          if (!confirm(`短縮URL「/${slug}」を削除しますか？`)) return;
+
+          delBtn.disabled = true;
+
+          try {
+            const res = await fetch(GAS_WEB_APP_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({ action: "delete", slug: slug })
             });
+            const data = await res.json();
+            if (data.ok) {
+              fetchLinks();
+            } else {
+              alert("削除エラー: " + data.error);
+            }
+          } catch (err) {
+            alert("通信エラー: " + err.message);
+          } finally {
+            delBtn.disabled = false;
+          }
         }
+      });
 
-        function downloadQR() {
-            const img = document.getElementById('qrcode-img');
-            if(!img.src) return;
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.download = 'sirius_qr.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
+      copyResultBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(shortLinkOut.textContent);
+        const orig = copyResultBtn.textContent;
+        copyResultBtn.textContent = "コピー完了！";
+        setTimeout(() => (copyResultBtn.textContent = orig), 1500);
+      });
+
+      refreshListBtn.addEventListener("click", fetchLinks);
+
+      // 初回読み込み
+      fetchLinks();
+    })();
+  </script>
 </body>
 </html>
