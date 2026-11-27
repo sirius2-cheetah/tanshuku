@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リンク宛先の変更 | 短縮.top</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232563eb'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M26 38l12-12'/%3E%3Cpath d='M35 21l3-3a8.5 8.5 0 0 1 12 12l-3 3'/%3E%3Cpath d='M29 43l-3 3a8.5 8.5 0 0 1-12-12l3-3'/%3E%3C/g%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-sub: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: rgba(37, 99, 235, 0.1);
+      --danger: #dc2626;
+      --danger-soft: rgba(220, 38, 38, 0.1);
+      --success: #16a34a;
+      --success-soft: rgba(22, 163, 74, 0.1);
+      --shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #090d16;
+        --surface: #111827;
+        --surface-sub: #1e293b;
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #1e293b;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --primary-soft: rgba(59, 130, 246, 0.15);
+        --danger: #f87171;
+        --danger-soft: rgba(248, 113, 113, 0.12);
+        --success: #4ade80;
+        --success-soft: rgba(74, 222, 128, 0.12);
+        --shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .slug-box {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .slug-box:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    .slug-prefix {
+      padding: 11px 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-sub);
+      border-right: 1px solid var(--border);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .slug-box input {
+      border: none;
+      border-radius: 0;
+      box-shadow: none !important;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    input:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      background: var(--surface-sub);
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
+      background: var(--surface-sub);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .auth-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--primary);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.05s, opacity 0.15s;
+    }
+
+    .btn:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    .btn-ghost:hover:not(:disabled) { background: var(--surface-sub); }
+
+    .passkey-note {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: var(--surface-sub);
+      padding: 11px 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .editor-section {
+      display: none;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .current-box {
+      background: var(--surface-sub);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+    }
+
+    .current-label {
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .current-url {
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    .alert {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .alert.error {
+      display: block;
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+
+    .alert.success {
+      display: block;
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid rgba(22, 163, 74, 0.25);
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer a:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="top-bar">
+      <a href="/" class="brand">
+        <span class="brand-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </span>
+        短縮.top
+      </a>
+      <span class="tag">宛先変更</span>
+    </div>
+
+    <h1>リンクの転送先を変更</h1>
+    <p class="subtitle">パスキーまたはパスワードで保護されたリンクのみ編集できます。</p>
+
+    <!-- ステップ1: 認証 -->
+    <div id="verifyStep">
+      <div class="field">
+        <label for="slugInput">短縮スラッグ（ID）</label>
+        <div class="slug-box">
+          <span class="slug-prefix">短縮.top/</span>
+          <input type="text" id="slugInput" placeholder="example" autocomplete="off" spellcheck="false" required>
+        </div>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab active" data-mode="password">パスワード認証</button>
+        <button type="button" class="auth-tab" data-mode="passkey">パスキー認証</button>
+      </div>
+
+      <div id="passwordArea" class="field">
+        <label for="passwordInput">設定済みパスワード</label>
+        <input type="password" id="passwordInput" placeholder="リンク作成時に設定したパスワード" autocomplete="current-password">
+      </div>
+
+      <div id="passkeyArea" class="passkey-note" style="display: none;">
+        端末の生体認証（指紋・顔認証）またはセキュリティキーで本人確認を行います。
+      </div>
+
+      <button type="button" id="verifyBtn" class="btn">認証してリンクを確認</button>
+    </div>
+
+    <!-- ステップ2: URL更新 -->
+    <div id="editorSection" class="editor-section">
+      <div class="current-box">
+        <div class="current-label">現在の転送先URL</div>
+        <div id="currentUrlText" class="current-url">-</div>
+      </div>
+
+      <div class="field">
+        <label for="newUrlInput">新しい転送先URL</label>
+        <input type="url" id="newUrlInput" placeholder="https://example.com/updated-page" required>
+      </div>
+
+      <button type="button" id="saveBtn" class="btn">新しい宛先を保存</button>
+      <button type="button" id="cancelBtn" class="btn btn-ghost">別のリンクを選択</button>
+    </div>
+
+    <div id="alertBox" class="alert" role="alert"></div>
+
+    <div class="footer">
+      <a href="/">← 短縮.top トップへ戻る</a>
+    </div>
+  </main>
+
+  <script>
+    // 既存のGAS WebアプリURLを設定
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyaiAF5iKZs5fQ9k4TYp2nwEOXyXLWFf3iDf4WxlMvQaQBxlUcLpYBdeL_8cEf14q3R/exec";
+
+    let authMode = "password";
+    let verifiedAuthPayload = null;
+
+    const slugInput = document.getElementById("slugInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordArea = document.getElementById("passwordArea");
+    const passkeyArea = document.getElementById("passkeyArea");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const editorSection = document.getElementById("editorSection");
+    const currentUrlText = document.getElementById("currentUrlText");
+    const newUrlInput = document.getElementById("newUrlInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const alertBox = document.getElementById("alertBox");
+    const authTabs = document.querySelectorAll(".auth-tab");
+
+    // ?slug=xxx または ?id=xxx クエリがあれば自動入力
+    const params = new URLSearchParams(location.search);
+    const presetSlug = params.get("slug") || params.get("id");
+    if (presetSlug) {
+      slugInput.value = presetSlug.replace(/^\/+/, "");
+    }
+
+    function setAlert(msg, type) {
+      alertBox.textContent = msg;
+      alertBox.className = "alert " + type;
+    }
+
+    function clearAlert() {
+      alertBox.textContent = "";
+      alertBox.className = "alert";
+    }
+
+    // 認証モード切替
+    authTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        clearAlert();
+        authTabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        authMode = tab.dataset.mode;
+        passwordArea.style.display = authMode === "password" ? "block" : "none";
+        passkeyArea.style.display = authMode === "passkey" ? "block" : "none";
+      });
+    });
+
+    // Base64URL 変換ユーティリティ（WebAuthn用）
+    function base64UrlToBuffer(base64url) {
+      const padding = "=".repeat((4 - (base64url.length % 4)) % 4);
+      const base64 = (base64url + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const raw = atob(base64);
+      const buffer = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) buffer[i] = raw.charCodeAt(i);
+      return buffer.buffer;
+    }
+
+    function bufferToBase64Url(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let str = "";
+      for (const b of bytes) str += String.fromCharCode(b);
+      return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    // WebAuthn パスキー認証フロー
+    async function authenticateWithPasskey(slug) {
+      if (!window.PublicKeyCredential) {
+        throw new Error("このブラウザはパスキーに対応していません。");
+      }
+
+      // 1. GASからチャレンジとallowCredentialsを取得
+      const initRes = await fetch(GAS_ENDPOINT, {
+        method: "POST",
+        body: JSON.stringify({ action: "editLookupInit", slug })
+      });
+      const initData = await initRes.json();
+      if (!initData.ok) {
+        throw new Error(initData.error || "認証に失敗したか、このリンクは編集対象外です。");
+      }
+
+      // 2. ブラウザのWebAuthn認証を実行
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge: base64UrlToBuffer(initData.challenge),
+          rpId: location.hostname,
+          allowCredentials: initData.allowCredentials.map((cred) => ({
+            type: "public-key",
+            id: base64UrlToBuffer(cred.id)
+          })),
+          userVerification: "preferred",
+          timeout: 60000
+        }
+      });
+
+      return {
+        authType: "passkey",
+        credentialId: assertion.id,
+        authenticatorData: bufferToBase64Url(assertion.response.authenticatorData),
+        clientDataJSON: bufferToBase64Url(assertion.response.clientDataJSON),
+        signature: bufferToBase64Url(assertion.response.signature)
+      };
+    }
+
+    // ステップ1: 本人確認と現在のURL取得
+    verifyBtn.addEventListener("click", async () => {
+      clearAlert();
+      const slug = slugInput.value.trim().replace(/^\/+/, "");
+      if (!slug) {
+        setAlert("短縮スラッグを入力してください。", "error");
+        return;
+      }
+
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "認証中...";
+
+      try {
+        let authPayload;
+        if (authMode === "password") {
+          const password = passwordInput.value;
+          if (!password) {
+            setAlert("パスワードを入力してください。", "error");
+            return;
+          }
+          authPayload = { authType: "password", password };
+        } else {
+          authPayload = await authenticateWithPasskey(slug);
+        }
+
+        const res = await fetch(GAS_ENDPOINT, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "editLookup",
+            slug,
+            ...authPayload
+          })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+          setAlert(data.error || "認証に失敗したか、このリンクは編集対象外です。", "error");
+          return;
+        }
+
+        verifiedAuthPayload = authPayload;
+        currentUrlText.textContent = data.targetUrl;
+        newUrlInput.value = data.targetUrl;
+
+        slugInput.disabled = true;
+        passwordInput.disabled = true;
+        authTabs.forEach((t) => (t.disabled = true));
+        verifyBtn.style.display = "none";
+        editorSection.style.display = "block";
+      } catch (err) {
+        if (err.name === "NotAllowedError") {
+          setAlert("パスキー認証がキャンセルされました。", "error");
+        } else {
+          setAlert(err.message || "認証に失敗したか、このリンクは編集対象外です。", "error");
+        }
+      } finally {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "認証してリンクを確認";
+      }
+    });
+
+    // ステップ2: 新しい転送先URLの保存
+    saveBtn.addEventListener("click", async () => {
+      clearAlert();
+      const slug = slugInput.value.trim().replace(/^\/+/, "");
+      const newUrl = newUrlInput.value.trim();
+
+      if (!/^https?:\/\/.+/i.test(newUrl)) {
+        setAlert("有効なURL（http:// または https://）を入力してください。", "error");
+        return;
+      }
+
+      // パスキー認証の場合はワンタイム署名のため、保存直前に再認証するかセッショントークンを使う
+      saveBtn.disabled = true;
+      saveBtn.textContent = "保存中...";
+
+      try {
+        let authPayload = verifiedAuthPayload;
+        if (authMode === "passkey") {
+          authPayload = await authenticateWithPasskey(slug);
+        }
+
+        const res = await fetch(GAS_ENDPOINT, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "editUpdate",
+            slug,
+            newUrl,
+            ...authPayload
+          })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+          setAlert(data.error || "更新に失敗しました。もう一度お試しください。", "error");
+          return;
+        }
+
+        currentUrlText.textContent = newUrl;
+        setAlert("転送先URLを更新しました。即座に新しいリンク先へ反映されます。", "success");
+      } catch (err) {
+        if (err.name === "NotAllowedError") {
+          setAlert("パスキー認証がキャンセルされました。", "error");
+        } else {
+          setAlert(err.message || "通信エラーが発生しました。", "error");
+        }
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "新しい宛先を保存";
+      }
+    });
+
+    // リセット
+    cancelBtn.addEventListener("click", () => {
+      clearAlert();
+      verifiedAuthPayload = null;
+      slugInput.disabled = false;
+      passwordInput.disabled = false;
+      passwordInput.value = "";
+      authTabs.forEach((t) => (t.disabled = false));
+      verifyBtn.style.display = "inline-flex";
+      editorSection.style.display = "none";
+    });
+  </script>
+</body>
+</html>
