@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用規約 | 短縮.top</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.08);
+      --table-head: #f1f5f9;
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1120;
+        --surface: #111827;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #1e293b;
+        --accent: #60a5fa;
+        --accent-soft: rgba(96, 165, 250, 0.12);
+        --table-head: #1e293b;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+
+    header {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      color: var(--accent);
+    }
+
+    .back-link {
+      font-size: 0.875rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      font-weight: 500;
+      transition: opacity 0.15s ease;
+    }
+
+    .back-link:hover {
+      opacity: 0.8;
+    }
+
+    main {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 24px 18px;
+        border-radius: 12px;
+      }
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 0.925rem;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section {
+      margin-bottom: 28px;
+    }
+
+    section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      padding-left: 12px;
+      border-left: 4px solid var(--accent);
+      line-height: 1.4;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    ul, ol {
+      margin: 0 0 10px;
+      padding-left: 1.4em;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .sub-list {
+      margin-top: 6px;
+      margin-bottom: 4px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 14px 0 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      min-width: 440px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: var(--table-head);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .meta-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="brand">短縮<span>.top</span></a>
+      <a href="/" class="back-link">← トップへ戻る</a>
+    </header>
+
+    <main>
+      <h1>利用規約</h1>
+      <p class="lead">
+        この利用規約（以下「本規約」といいます）は、「短縮.top」の利用条件を定めるものです。ご利用の前に必ずお読みください。
+      </p>
+
+      <section>
+        <h2>第1条（サービスの概要）</h2>
+        <ul>
+          <li>短縮.topは、一個人が運営しているWeb URL短縮ツールです。</li>
+          <li>短縮.topは、サービスを提供している期間中は無償で提供いたします。</li>
+          <li>短縮.topで短縮URLを作成するか、アクセス解析ページ・リンク編集ページを開いた時点で、本規約に同意したものとみなします。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>第2条（禁止事項）</h2>
+        <p>短縮.topでは、次の行為を禁止します。</p>
+        <ol>
+          <li>
+            次のようなURLの短縮および転送先への設定
+            <ul class="sub-list">
+              <li>アクセスすることが危険だと判断されるフィッシングサイト・マルウェア配布サイト・違法コンテンツへのURL</li>
+              <li>スパム行為を目的としたURL</li>
+              <li>公序良俗に反するURL</li>
+            </ul>
+          </li>
+          <li>自動化ツール（Bot等）やスクリプトなどによる短縮.topへの大量リクエスト</li>
+          <li>本人の許可を得ていない他人の個人情報等をメモ機能などへ登録する行為</li>
+          <li>その他、運営者が不適切と判断した行為</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>第3条（保持期限および自動削除）</h2>
+        <p>
+          登録された情報は、セキュリティ保護設定の有無やアクセス数に応じて、最終アクセス日（未アクセスの場合は作成日）より規定の期間が経過した後に自動削除されます。一度削除されたデータは復元できません。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>保護設定</th>
+                <th>アクセス数</th>
+                <th>最終アクセスより</th>
+                <th>作成より</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>無</td>
+                <td>0回</td>
+                <td>-</td>
+                <td>5日</td>
+              </tr>
+              <tr>
+                <td>無</td>
+                <td>1〜5回</td>
+                <td>30日</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>無</td>
+                <td>6回以上</td>
+                <td>365日</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>有（パスワード・パスキー）</td>
+                <td>問わず</td>
+                <td>365日</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>第4条（安全性の検証および予告なき削除）</h2>
+        <p>
+          運営者は、登録または変更されたURLについて Google Safe Browsing API 等を用いた安全性検証を行う場合があります。登録された情報が第2条第1項に定める禁止事項に該当する場合や、第3条の保持期限を超過している場合などには、事前の予告なく当該リンクを削除することがあります。
+        </p>
+      </section>
+
+      <section>
+        <h2>第5条（認証情報の管理）</h2>
+        <ul>
+          <li>設定されたパスワードおよびパスキーは、ユーザー自身の責任において適切に管理してください。</li>
+          <li>システムの仕様上、パスワードやパスキーの再発行・復旧には一切対応できません。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>第6条（免責事項）</h2>
+        <ul>
+          <li>サービスの一時停止・終了、外部基盤（Google Apps Script 等）の障害や制限に伴うデータの消失、および転送先のWebサイトで生じた損害等について、運営者は一切の責任を負いません。</li>
+          <li>短縮URLのID一覧は公開しておりませんが、万一第三者にIDが推測・共有されたことによるアクセスや損害等につきましても、運営者は一切の責任を負いません。個人情報や機密情報を含むURLの短縮はお控えください。</li>
+          <li>キャッシュ処理の仕様上、リンクの編集直後などは一時的にリダイレクト先やアクセス回数の表示が古いままになったり、反映に失敗したりする場合があります。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>第7条（カスタムID）</h2>
+        <p>
+          短縮.topで設定できるカスタムIDは、すでに使用されている文字列やシステム上の予約語など、指定されたIDが必ずしも取得できるものではありません。また、他社の商標・企業名・公的機関へのなりすましや誤認を招く文字列は使用しないでください。
+        </p>
+      </section>
+
+      <section>
+        <h2>第8条（その他）</h2>
+        <ul>
+          <li>本規約の適用開始日は、西暦2027年1月11日（日本標準時）です。</li>
+          <li>本規約は、ユーザーへの予告なく変更・改定を行うことがあります。改定後に短縮.topを利用した時点で、変更後の規約に同意したものとみなします。</li>
+          <li>本規約の解釈および適用にあたっては、日本法を準拠法とします。</li>
+        </ul>
+      </section>
+
+      <div class="meta-footer">
+        適用開始日：2027年1月11日（JST）<br>
+        運営：短縮.top
+      </div>
+    </main>
+  </div>
+</body>
+</html>
